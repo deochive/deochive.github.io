@@ -1,0 +1,253 @@
+.layout-buttons {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.layout-buttons button {
+  margin: 0 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+
+  background-color: transparent;
+  color: #ffffff;
+
+  cursor: pointer;
+  font-size: 14px;
+  transition: 
+    background 0.2s, 
+    color 0.2s, 
+    outline-color 0.2s,
+    box-shadow 0.3s;
+}
+
+.layout-buttons button:hover {
+  background: #fff511;
+  color: #000000;
+}
+
+.layout-buttons button.active {
+  outline-color: #fff511;
+  box-shadow: 0 0 8px 2px #fff511;
+}
+
+.layout-buttons button.active:hover {
+  color: #000000;
+  box-shadow: 0 0 12px 4px #fff511;
+}
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.video-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.video {
+  display: flex;
+  flex-direction: column;
+  background: #040707;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 290px;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    height 0.3s;
+  position: relative;
+  outline-color: #fff511;
+  outline-style: solid;
+  outline-width: 2px;
+}
+
+.video:hover {
+  transform: scale(1.03);
+}
+
+.thumbnail-container {
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.thumbnail-container img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.thumbnail-container .duration {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff511;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+p {
+  color: white;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+.video-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  padding: 4px 8px;
+  position: relative;
+}
+
+.video p.title {
+  font-size: 14px;
+  line-height: 1.2em;
+  max-height: 2.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  margin: 2px 0;
+}
+
+.info {
+  position: absolute;
+  bottom: 9px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: #ccc;
+}
+
+.creator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.creator-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.creator-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.publish-date {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.videos-grid.list-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.videos-grid.list-view .video {
+  flex-direction: row;
+  height: 120px;
+}
+
+.videos-grid.list-view .thumbnail-container {
+  flex: 0 0 160px;
+  height: 100%;
+}
+
+.videos-grid.list-view .thumbnail-container img {
+  width: 160px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.videos-grid.list-view .info {
+  position: static;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.videos-grid.list-view .video-content {
+  flex: 1;
+  padding-left: 8px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  bottom: 2px;
+}
+
+.videos-grid.compact-view {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.videos-grid.compact-view .video {
+  height: 220px;
+}
+
+.videos-grid.compact-view .thumbnail-container img {
+  height: 120px;
+}
+
+.videos-grid.compact-view .video-content {
+  justify-content: flex-start;
+  padding: 2px 4px;
+}
+
+.videos-grid.list-view .p-info {
+  left: 166px;
+}
+
+@media screen and (max-width: 1143px) {
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    transition: all 0.3s ease;
+  }
+}
+
+@media screen and (max-width: 874px) {
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    transition: all 0.3s ease;
+  }
+}
+
+@media screen and (max-width: 407px) {
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    transition: all 0.3s ease;
+  }
+}

@@ -1,0 +1,22 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #020303;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  color: white;
+}
+
+.disclaimer {
+  margin-top: 150px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.disclaimer u {
+  color: #fff511; /* your yellow */
+}

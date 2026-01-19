@@ -1,2 +1,28 @@
-<!DOCTYPE html>
-<body>test</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DEOchive Videos</title>
+    <link rel="stylesheet" href="body.css" />
+    <link rel="stylesheet" href="vodStyleMP.css" />
+    <script src="layout.js"></script>
+  </head>
+
+  <body>
+    <h1>DEOchive</h1>
+    <div class="layout-buttons">
+      <button onclick="setLayout('grid')">Grid</button>
+      <button onclick="setLayout('list')">List</button>
+      <button onclick="setLayout('compact')">Compact</button>
+    </div>
+
+    <div id="youtube-videos" class="videos-grid"></div>
+
+    <script src="displayVods.js"></script>
+    <p class="disclaimer">
+      This site works through YouTube embedded videos, it does <u>not</u> host
+      any videos.
+    </p>
+  </body>
+</html>
