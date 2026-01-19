@@ -64,7 +64,7 @@ async function loadVideos() {
     videos.forEach((video) => {
       const publishDate = new Date(video.publishedAt).toLocaleDateString();
       const videoHTML = `
-<a href="video.html?videoId=${video.videoId}" class="video-link">
+<a href="v.html?videoId=${video.videoId}" class="video-link">
     <div class="video">
         <div class="thumbnail-container">
             <img src="${video.thumbnail}" alt="${video.title}">
