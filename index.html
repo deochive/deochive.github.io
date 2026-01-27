@@ -3,26 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DEOchive Videos</title>
+    <title>DEO VODS ARCHIVE</title>
     <link rel="stylesheet" href="body.css" />
     <link rel="stylesheet" href="vodStyleMP.css" />
-    <script src="layout.js"></script>
+    <script src="sitePref.js" defer></script>
+    <script src="live-detection.js" defer></script>
   </head>
 
-  <body>
-    <h1>DEOchive</h1>
-    <div class="layout-buttons">
-      <button onclick="setLayout('grid')">Grid</button>
-      <button onclick="setLayout('list')">List</button>
-      <button onclick="setLayout('compact')">Compact</button>
-    </div>
-
-    <div id="youtube-videos" class="videos-grid"></div>
-
-    <script src="displayVods.js"></script>
+  <body class="page-home">
     <p class="disclaimer">
       This site works through YouTube embedded videos, it does <u>not</u> host
       any videos.
     </p>
+
+    <div class="controls-bar-wrapper">
+      <div class="controls-bar">
+        <button onclick="setLayout('grid')" class="active">Grid</button>
+        <button onclick="setLayout('list')">List</button>
+        <button onclick="setLayout('compact')">Compact</button>
+        <button id="sort-button">Sort</button>
+
+        <div id="sort-popup" class="sort-popup">
+          <div class="sort-option" tabindex="0" data-sort="date-new">Date (Newest)</div>
+          <div class="sort-option" tabindex="0" data-sort="date-old">Date (Oldest)</div>
+          <div class="sort-option" tabindex="0" data-sort="length-long">Length (Longest)</div>
+          <div class="sort-option" tabindex="0" data-sort="length-short">Length (Shortest)</div>
+          <div class="sort-option" tabindex="0" data-sort="title-az">Title A–Z</div>
+          <div class="sort-option" tabindex="0" data-sort="title-za">Title Z–A</div>
+          <div class="sort-option" tabindex="0" data-sort="creator-az">Creator A–Z</div>
+          <div class="sort-option" tabindex="0" data-sort="creator-za">Creator Z–A</div>
+        </div>
+        <input
+          type="text"
+          id="video-search"
+          class="video-search"
+          placeholder="Search videos..."
+        />
+        <button id="theme-toggle">Toggle theme</button>
+      </div>
+    </div>
+    <div id="youtube-videos" class="videos-grid"></div>
+    <div id="pagination" class="pagination"></div>
+    <div class="siteLogo"></div>
+
+    <script src="displayVods.js" defer></script>
+    <script defer>
+      document.addEventListener("DOMContentLoaded", () => {
+        const controls = document.querySelector(".controls-bar");
+        if (!controls) return;
+
+        const checkShrink = () => {
+          const rect = controls.getBoundingClientRect();
+          controls.classList.toggle("shrink", rect.top <= 25);
+        };
+
+        window.addEventListener("scroll", checkShrink, { passive: true });
+        checkShrink();
+      });
+    </script>
   </body>
 </html>

@@ -1,42 +1,136 @@
-.layout-buttons {
-  text-align: center;
-  margin-bottom: 10px;
+.controls-bar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
 }
 
-.layout-buttons button {
-  margin: 0 5px;
+.controls-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  text-align: center;
+  margin: 0;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+
+  row-gap: 10px;
+  column-gap: 12px;
+
+  background: transparent;
+  transition:
+    background 0.3s ease,
+    backdrop-filter 0.3s ease,
+    padding 0.3s ease,
+    height 0.3s ease;
+
+  height: auto;
+  overflow: visible;
+}
+
+.controls-bar.shrink {
+  outline: 2px var(--acc5) solid;
+  padding: 8px;
+  background: color-mix(in srgb, var(--bg) 80%, transparent 5%);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.controls-bar button,
+#sort-button {
+  margin: 0;
   padding: 6px 12px;
   border: none;
   border-radius: 8px;
-
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-
   background-color: transparent;
-  color: #ffffff;
-
+  color: var(--text);
   cursor: pointer;
   font-size: 14px;
-  transition: 
-    background 0.2s, 
-    color 0.2s, 
+  transition:
+    background 0.2s,
+    color 0.2s,
     outline-color 0.2s,
     box-shadow 0.3s;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.layout-buttons button:hover {
-  background: #fff511;
+.pagination {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.pagination button {
+  padding: 16px 24px;
+  border: none;
+  border-radius: 6px;
+  background: var(--acc3);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination button:hover {
+  background: var(--acc1);
   color: #000000;
 }
 
-.layout-buttons button.active {
-  outline-color: #fff511;
-  box-shadow: 0 0 8px 2px #fff511;
+.pagination button.active {
+  background: var(--acc1);
+  color: #000000;
+  font-weight: bold;
 }
 
-.layout-buttons button.active:hover {
+.controls-bar button:hover {
+  background: var(--acc1);
   color: #000000;
-  box-shadow: 0 0 12px 4px #fff511;
+}
+
+.controls-bar button.active {
+  outline-color: var(--acc1);
+  box-shadow: 0 0 8px 2px var(--acc1);
+}
+
+.controls-bar .video-search {
+  background-color: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    outline-color 0.2s,
+    box-shadow 0.3s;
+  width: 200px;
+  outline-color: var(--acc1);
+  box-shadow: 0 0 8px 2px var(--acc1);
+  margin-left: 8px;
+}
+
+.controls-bar .video-search:hover {
+  background: var(--acc1);
+  color: #000000;
+}
+
+.controls-bar button.active:hover {
+  color: #000000;
+  box-shadow: 0 0 12px 4px var(--acc1);
 }
 
 .videos-grid {
@@ -48,27 +142,36 @@
 }
 
 .video-link {
+  opacity: 1;
   text-decoration: none;
   color: inherit;
+  transition: opacity 0.3s ease;
+}
+
+#youtube-videos {
+  flex-wrap: wrap;
+  gap: 16px;
+  transition: all 0.3s ease;
 }
 
 .video {
   display: flex;
   flex-direction: column;
-  background: #040707;
+  background: var(--acc3);
   border-radius: 8px;
   overflow: hidden;
   height: 290px;
   width: 100%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition:
-    transform 0.2s,
-    height 0.3s;
   position: relative;
-  outline-color: #fff511;
+  outline-color: var(--acc1);
   outline-style: solid;
   outline-width: 2px;
+  flex: 0 0 360px;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
 }
 
 .video:hover {
@@ -93,7 +196,7 @@
   top: 4px;
   right: 4px;
   background: rgba(0, 0, 0, 0.75);
-  color: #fff511;
+  color: var(--acc1);
   font-size: 14px;
   padding: 2px 6px;
   border-radius: 4px;
@@ -126,6 +229,7 @@ p {
   -webkit-box-orient: vertical;
   word-break: break-word;
   margin: 2px 0;
+  color: var(--text);
 }
 
 .info {
@@ -137,7 +241,7 @@ p {
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
-  color: #ccc;
+  color: var(--acc4);
 }
 
 .creator {
@@ -164,8 +268,109 @@ p {
   text-overflow: ellipsis;
 }
 
-.videos-grid.list-view {
+.user {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  outline: none;
+}
+
+.username {
+  font-weight: bold;
+  color: white;
+}
+
+.live-badge {
+  position: relative;
+  background-color: red;
+  color: white;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  overflow: visible;
+}
+
+.live-badge::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 2px solid red;
+  border-radius: 3px;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  animation: pulse 0.5s ease-out infinite;
+}
+
+.sort-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  left: auto;
+  background: rgba(2, 3, 5, 0.95);
+  border: 1px solid var(--acc1);
+  border-radius: 8px;
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2000;
+  min-width: 180px;
+}
+
+.sort-popup .sort-option {
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  color: #fff;
+}
+
+#sort-button:hover {
+  background: var(--acc1);
+  color: var(--acc2);
+}
+
+.sort-popup .sort-option:hover {
+  background: var(--acc1);
+  color: var(--acc2);
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.live-badge::before {
+  animation: pulse 0.5s ease-out infinite;
+  animation-delay: 0s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+}
+
+.live-badge::before {
+  animation: pulse 0.5s ease-out 1;
+  animation-delay: 0s;
+}
+
+.videos-grid.list-view {
   flex-direction: column;
 }
 
@@ -223,7 +428,7 @@ p {
 }
 
 @media screen and (max-width: 1143px) {
-  .videos-grid {
+  body.page-home .videos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     gap: 16px;
@@ -233,7 +438,7 @@ p {
 }
 
 @media screen and (max-width: 874px) {
-  .videos-grid {
+  body.page-home .videos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
@@ -243,11 +448,50 @@ p {
 }
 
 @media screen and (max-width: 407px) {
-  .videos-grid {
+  body.page-home .videos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 16px;
     padding: 16px;
     transition: all 0.3s ease;
+  }
+}
+
+@media screen and (max-width: 596px) {
+  body.page-home .controls-bar {
+    justify-content: center;
+  }
+
+  body.page-home .controls-bar .video-search {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  body.page-home .controls-bar button {
+    flex: 1 1 auto;
+    margin: 4px;
+  }
+}
+
+@media screen and (max-width: 1082px) {
+  body.page-home .videos-grid.list-view {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 766px) {
+  body.page-home .videos-grid.list-view {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 596px) {
+  body.page-home .sort-popup {
+    left: auto;
+    right: 0;
   }
 }

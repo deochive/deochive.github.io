@@ -1,17 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VOD</title>
+    <link rel="stylesheet" href="body.css" />
+    <link rel="stylesheet" href="vodStyleMP.css" />
+    <link rel="stylesheet" href="vodStyleVP.css" />
+    <script src="sitePref.js" defer></script>
+    <script src="videoPage.js" defer></script>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video</title>
-    <link rel="stylesheet" href="vodStyleMP.css">
-</head>
+  <body>
+    <div class="controls-bar-wrapper">
+      <div class="controls-bar">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="index.html">Home</a>
+          <span aria-hidden="true">&gt;</span>
+          <span>VOD</span>
+        </nav>
 
-<body>
-    <div id="video-container"></div>
+        <a href="index.html" class="back-link-button">&lt; Back</a>
+        <button id="theme-toggle" type="button">Toggle theme</button>
+      </div>
+    </div>
 
-    <script src="videoPage.js"></script>
-</body>
+    <main id="video-container"></main>
 
+    <script>
+      (() => {
+        const controls = document.querySelector(".controls-bar");
+        if (!controls) return;
+
+        const updateShrink = () => {
+          controls.classList.toggle(
+            "shrink",
+            controls.getBoundingClientRect().top <= 25
+          );
+        };
+
+        window.addEventListener("scroll", updateShrink, { passive: true });
+        updateShrink();
+      })();
+    </script>
+  </body>
 </html>
