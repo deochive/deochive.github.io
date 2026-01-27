@@ -1,3 +1,5 @@
+// i am aware the key is public
+
 const API_KEY = "AIzaSyCdgQXCJk3uMF9Afiu-XnBr6RwO-31n2_0";
 const VIDEOS_PER_PAGE = 27;
 

@@ -1,6 +1,8 @@
+// i am aware the token and client IDs are public
+
 document.addEventListener("DOMContentLoaded", () => {
   const disclaimer = document.querySelector(".disclaimer");
-  const users = ["bradygoo"];
+  const users = ["brucedropemoff"];
   const CLIENT_ID = "h6e18v19zv1lzx36kyv700os8adys0";
   const OAUTH_TOKEN = "iiup8vm86l2ubrgjoci7w1cvvv07j7";
 
@@ -23,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function placeUserElement(userEl) {
     if (!userEl.parentElement) {
-      // Always insert after disclaimer
       disclaimer.insertAdjacentElement("afterend", userEl);
     }
     userEl.style.position = "relative";
