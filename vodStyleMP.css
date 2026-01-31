@@ -229,6 +229,7 @@ p {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   word-break: break-word;
   margin: 2px 0;
   color: var(--text);
@@ -454,6 +455,7 @@ p {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3em;
