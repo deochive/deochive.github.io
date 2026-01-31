@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="vodStyleVP.css" />
     <script src="sitePref.js" defer></script>
     <script src="videoPage.js" defer></script>
+    <script src="vod-history.js" defer></script>
   </head>
 
   <body>
@@ -35,7 +36,7 @@
         const updateShrink = () => {
           controls.classList.toggle(
             "shrink",
-            controls.getBoundingClientRect().top <= 25
+            controls.getBoundingClientRect().top <= 25,
           );
         };
 

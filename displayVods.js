@@ -1,18 +1,17 @@
-// i am aware the key is public
-
-const API_KEY = "AIzaSyCdgQXCJk3uMF9Afiu-XnBr6RwO-31n2_0";
-const VIDEOS_PER_PAGE = 27;
-
+const kx = "AIzaSyCdgQXCJk3uMF9Afiu-XnBr6RwO-31n2_0";
 let allVideos = [];
 let durations = {};
 let videoBatches = [];
 let loadedBatches = 0;
 let isLoading = false;
-
-const container = document.getElementById("youtube-videos");
-const paginationContainer = document.getElementById("pagination");
 let currentPage = 1;
 let currentSort = null;
+const VIDEOS_PER_PAGE = 27;
+const container = document.getElementById("youtube-videos");
+const paginationContainer = document.getElementById("pagination");
+const sortButton = document.getElementById("sort-button");
+const sortPopup = document.getElementById("sort-popup");
+const sortOptions = Array.from(sortPopup.querySelectorAll(".sort-option"));
 
 function formatDuration(isoDuration) {
   const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -35,7 +34,6 @@ function convertToSeconds(duration) {
 function extractDate(video) {
   let match = video.description?.match(/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/);
   if (match) return match[1];
-
   match = video.title?.match(/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/);
   if (match) return match[1];
 
@@ -55,6 +53,13 @@ function parseDateString(dateStr) {
 
 function normalizeText(text) {
   return text.toLowerCase().replace(/[^a-z0-9\s]/g, "");
+}
+
+function prepareVideo(video) {
+  const rawDate = extractDate(video);
+  video._rawDate = rawDate;
+  video._parsedDate = rawDate ? parseDateString(rawDate) : null;
+  video._durationSeconds = convertToSeconds(durations[video.videoId] || "0:00");
 }
 
 function renderVideos(videos) {
@@ -101,7 +106,6 @@ function renderPage(page, videos = allVideos) {
 function renderPagination(videos = allVideos) {
   paginationContainer.innerHTML = "";
   const totalPages = Math.ceil(videos.length / VIDEOS_PER_PAGE);
-
   const leftBtn = document.createElement("button");
   leftBtn.textContent = "◀";
   leftBtn.disabled = currentPage === 1;
@@ -129,41 +133,33 @@ function sortVideos(type) {
 
   switch (type) {
     case "date-new":
-      allVideos.sort(
-        (a, b) =>
-          parseDateString(extractDate(b)) - parseDateString(extractDate(a)),
-      );
+      allVideos.sort((a, b) => b._parsedDate - a._parsedDate);
       break;
+
     case "date-old":
-      allVideos.sort(
-        (a, b) =>
-          parseDateString(extractDate(a)) - parseDateString(extractDate(b)),
-      );
+      allVideos.sort((a, b) => a._parsedDate - b._parsedDate);
       break;
+
     case "length-long":
-      allVideos.sort(
-        (a, b) =>
-          convertToSeconds(durations[b.videoId] || "0:00") -
-          convertToSeconds(durations[a.videoId] || "0:00"),
-      );
+      allVideos.sort((a, b) => b._durationSeconds - a._durationSeconds);
       break;
+
     case "length-short":
-      allVideos.sort(
-        (a, b) =>
-          convertToSeconds(durations[a.videoId] || "0:00") -
-          convertToSeconds(durations[b.videoId] || "0:00"),
-      );
+      allVideos.sort((a, b) => a._durationSeconds - b._durationSeconds);
       break;
+
     case "title-az":
       allVideos.sort((a, b) =>
         a.title.toLowerCase().localeCompare(b.title.toLowerCase()),
       );
       break;
+
     case "title-za":
       allVideos.sort((a, b) =>
         b.title.toLowerCase().localeCompare(a.title.toLowerCase()),
       );
       break;
+
     case "creator-az":
       allVideos.sort((a, b) =>
         a.channelTitle
@@ -171,6 +167,7 @@ function sortVideos(type) {
           .localeCompare(b.channelTitle.toLowerCase()),
       );
       break;
+
     case "creator-za":
       allVideos.sort((a, b) =>
         b.channelTitle
@@ -206,7 +203,7 @@ async function fetchPlaylistVideos(playlistId) {
     nextPageToken = "";
   do {
     const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&pageToken=${nextPageToken}&key=${API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&pageToken=${nextPageToken}&key=${kx}`,
     );
     const data = await res.json();
     if (!data.items) break;
@@ -229,7 +226,7 @@ async function fetchPlaylistVideos(playlistId) {
 async function fetchChannelVideos(channelId) {
   let list = [];
   const channelRes = await fetch(
-    `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&id=${channelId}&key=${API_KEY}`,
+    `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&id=${channelId}&key=${kx}`,
   );
   const channelData = await channelRes.json();
   const uploadsPlaylistId =
@@ -242,7 +239,7 @@ async function fetchChannelVideos(channelId) {
   let nextPageToken = "";
   do {
     const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsPlaylistId}&pageToken=${nextPageToken}&key=${API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsPlaylistId}&pageToken=${nextPageToken}&key=${kx}`,
     );
     const data = await res.json();
     if (!data.items) break;
@@ -270,7 +267,7 @@ async function fetchChannelIcons(videos) {
   for (let i = 0; i < uniqueChannelIds.length; i += 50) {
     const batch = uniqueChannelIds.slice(i, i + 50);
     const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${batch.join(",")}&key=${API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${batch.join(",")}&key=${kx}`,
     );
     const data = await res.json();
     data.items?.forEach((item) => {
@@ -288,7 +285,7 @@ async function loadVideos() {
       "UC7uyXhlffDK6AAWxh1PGXWg",
       "UCS5oTYx88yJrnyS37eB-0XQ",
       "UCBbGvsqEVGMGEO13Y8rg3Lg",
-      "UCvGZKQYEQ8nhqoUX89iEXWg"
+      "UCvGZKQYEQ8nhqoUX89iEXWg",
     ];
     const playlistId = "PLcqL_aHxpQfLhXpa0dc1FhNGELRv9T_ss";
     let videos = [];
@@ -296,12 +293,11 @@ async function loadVideos() {
     const playlistVideos = await fetchPlaylistVideos(playlistId);
     videos.push(...playlistVideos);
 
-    for (const id of channelIds) {
-      const channelVideos = await fetchChannelVideos(id);
-      videos.push(...channelVideos);
-    }
+    const channelPromises = channelIds.map(fetchChannelVideos);
+    const channelResults = await Promise.all(channelPromises);
+    channelResults.forEach((list) => videos.push(...list));
 
-    const videoIds = videos.map(v => v.videoId).filter(Boolean);
+    const videoIds = videos.map((v) => v.videoId).filter(Boolean);
     const videoBatches = [];
     for (let i = 0; i < videoIds.length; i += 50) {
       videoBatches.push(videoIds.slice(i, i + 50));
@@ -315,27 +311,34 @@ async function loadVideos() {
 
       const batch = videoBatches[batchIndex];
       const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(",")}&key=${API_KEY}`
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(",")}&key=${kx}`,
       );
       const data = await res.json();
 
-      data.items?.forEach(item => {
-        const video = videos.find(v => v.videoId === item.id);
+      data.items?.forEach((item) => {
+        const video = videos.find((v) => v.videoId === item.id);
         if (!video) return;
 
-        video.thumbnail = item.snippet.thumbnails?.medium?.url || video.thumbnail;
+        video.thumbnail =
+          item.snippet.thumbnails?.medium?.url || video.thumbnail;
         video.channelTitle = item.snippet.channelTitle || video.channelTitle;
         video.channelId = item.snippet.channelId || video.channelId;
-        durations[item.id] = formatDuration(item.contentDetails?.duration || "PT0S");
+        durations[item.id] = formatDuration(
+          item.contentDetails?.duration || "PT0S",
+        );
 
-        const combinedText = (video.title + " " + video.description).toLowerCase();
+        const combinedText = (
+          video.title +
+          " " +
+          video.description
+        ).toLowerCase();
         const titleLower = video.title.toLowerCase();
         const isSpecialVideo =
-           !titleLower.includes("opening") && (
-    video.fromPlaylist||
-          combinedText.includes("brucedropemoff stream") ||
-          combinedText.includes("brucedropemoff vod") ||
-          combinedText.includes("ecurb"));
+          !titleLower.includes("opening") &&
+          (video.fromPlaylist ||
+            combinedText.includes("brucedropemoff stream") ||
+            combinedText.includes("brucedropemoff vod") ||
+            combinedText.includes("ecurb"));
 
         if (!isSpecialVideo) return;
         if (convertToSeconds(durations[video.videoId]) < 3600) return;
@@ -344,7 +347,11 @@ async function loadVideos() {
         if (!rawDate) return;
 
         const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
-        if (!seenDates[parsedDate] || convertToSeconds(durations[video.videoId]) > convertToSeconds(durations[seenDates[parsedDate].videoId])) {
+        if (
+          !seenDates[parsedDate] ||
+          convertToSeconds(durations[video.videoId]) >
+            convertToSeconds(durations[seenDates[parsedDate].videoId])
+        ) {
           seenDates[parsedDate] = video;
         }
       });
@@ -352,17 +359,23 @@ async function loadVideos() {
       filteredVideos.length = 0;
       filteredVideos.push(...Object.values(seenDates));
       filteredVideos.sort(
-        (a, b) => parseDateString(extractDate(b)) - parseDateString(extractDate(a))
+        (a, b) =>
+          parseDateString(extractDate(b)) - parseDateString(extractDate(a)),
       );
       allVideos = filteredVideos;
 
       renderPage(currentPage);
-      await fetchChannelIcons(videos);
-
+      await fetchChannelIcons(allVideos);
       await loadNextBatch(batchIndex + 1);
     }
+    await loadNextBatch();
 
-    loadNextBatch();
+    allVideos = Object.values(seenDates);
+    allVideos.forEach(prepareVideo);
+    allVideos.sort((a, b) => b._parsedDate - a._parsedDate);
+    fetchChannelIcons(allVideos);
+
+    renderPage(1);
   } catch (err) {
     console.error("LOAD VIDEOS ERROR:", err);
     container.innerHTML = "Failed to load videos.";
@@ -372,10 +385,6 @@ async function loadVideos() {
 document
   .getElementById("video-search")
   ?.addEventListener("input", filterVideos);
-
-const sortButton = document.getElementById("sort-button");
-const sortPopup = document.getElementById("sort-popup");
-const sortOptions = Array.from(sortPopup.querySelectorAll(".sort-option"));
 
 sortButton.addEventListener("click", (e) => {
   e.stopPropagation();

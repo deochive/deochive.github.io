@@ -14,10 +14,9 @@ window.setLayout = function (layout) {
     .forEach((b) => b.classList.remove("active"));
 
   const btn = document.querySelector(
-    `.controls-bar button[onclick="setLayout('${layout}')"]`
+    `.controls-bar button[onclick="setLayout('${layout}')"]`,
   );
   if (btn) btn.classList.add("active");
-
   const grid = document.getElementById("youtube-videos");
   if (grid) grid.className = "videos-grid " + layout + "-view";
 };

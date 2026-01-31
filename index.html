@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="vodStyleMP.css" />
     <script src="sitePref.js" defer></script>
     <script src="live-detection.js" defer></script>
+    <script src="vod-history.js" defer></script>
   </head>
 
   <body class="page-home">
     <p class="disclaimer">
       This site works through YouTube embedded videos, it does <u>not</u> host
-      any videos.
+      any videos
     </p>
 
     <div class="controls-bar-wrapper">
@@ -24,14 +25,30 @@
         <button id="sort-button">Sort</button>
 
         <div id="sort-popup" class="sort-popup">
-          <div class="sort-option" tabindex="0" data-sort="date-new">Date (Newest)</div>
-          <div class="sort-option" tabindex="0" data-sort="date-old">Date (Oldest)</div>
-          <div class="sort-option" tabindex="0" data-sort="length-long">Length (Longest)</div>
-          <div class="sort-option" tabindex="0" data-sort="length-short">Length (Shortest)</div>
-          <div class="sort-option" tabindex="0" data-sort="title-az">Title A–Z</div>
-          <div class="sort-option" tabindex="0" data-sort="title-za">Title Z–A</div>
-          <div class="sort-option" tabindex="0" data-sort="creator-az">Creator A–Z</div>
-          <div class="sort-option" tabindex="0" data-sort="creator-za">Creator Z–A</div>
+          <div class="sort-option" tabindex="0" data-sort="date-new">
+            Date (Newest)
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="date-old">
+            Date (Oldest)
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="length-long">
+            Length (Longest)
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="length-short">
+            Length (Shortest)
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="title-az">
+            Title A–Z
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="title-za">
+            Title Z–A
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="creator-az">
+            Creator A–Z
+          </div>
+          <div class="sort-option" tabindex="0" data-sort="creator-za">
+            Creator Z–A
+          </div>
         </div>
         <input
           type="text"
@@ -40,11 +57,32 @@
           placeholder="Search videos..."
         />
         <button id="theme-toggle">Toggle theme</button>
+        <button id="history-toggle">History</button>
       </div>
     </div>
-    <div id="youtube-videos" class="videos-grid"></div>
+
+    <div class="content-wrapper">
+      <div id="youtube-videos" class="videos-grid"></div>
+
+      <div id="watch-history" class="watch-history">
+        <div class="history-header">
+          <h3>Your history</h3>
+
+          <div class="history-actions">
+            <button id="history-pin" title="Pin sidebar">📌</button>
+            <button id="history-close" title="Close">✕</button>
+          </div>
+        </div>
+
+        <div id="history-list"></div>
+      </div>
+    </div>
     <div id="pagination" class="pagination"></div>
     <div class="siteLogo"></div>
+    <p class="disclaimer">
+      To increase loading times, VODS will load in gradually and shorter VODS
+      will be replaced with longer VODS as a result
+    </p>
 
     <script src="displayVods.js" defer></script>
     <script defer>
