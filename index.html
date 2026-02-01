@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DEO VODS ARCHIVE</title>
-    <link rel="stylesheet" href="body.css" />
-    <link rel="stylesheet" href="vodStyleMP.css" />
-    <script src="sitePref.js" defer></script>
+    <meta
+      name="description"
+      content="A BruceDropEmOff Stream Archive — a searchable archive of BruceDropEmOff VODs. Sort by date, length, title, or creator, view watch history, and browse available streams uploaded on YouTube through embeds."
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://www.googleapis.com">
+    <link rel="preconnect" href="https://api.twitch.tv">
+    <link rel="stylesheet" href="body.css" defer />
+    <link rel="stylesheet" href="vod-style-MP.css" defer />
+    <script src="site-pref.js" defer></script>
     <script src="live-detection.js" defer></script>
     <script src="vod-history.js" defer></script>
   </head>
@@ -61,30 +69,34 @@
       </div>
     </div>
 
-    <div class="content-wrapper">
-      <div id="youtube-videos" class="videos-grid"></div>
+    <main id="main-content">
+      <div class="content-wrapper">
+        <div id="youtube-videos" class="videos-grid"></div>
 
-      <div id="watch-history" class="watch-history">
-        <div class="history-header">
-          <h3>Your history</h3>
+        <div id="watch-history" class="watch-history">
+          <div class="history-header">
+            <h3>Your history</h3>
 
-          <div class="history-actions">
-            <button id="history-pin" title="Pin sidebar">📌</button>
-            <button id="history-close" title="Close">✕</button>
+            <div class="history-actions">
+              <button id="history-pin" title="Pin sidebar">📌</button>
+              <button id="history-close" title="Close">✕</button>
+            </div>
           </div>
+
+          <div id="history-list"></div>
         </div>
-
-        <div id="history-list"></div>
       </div>
-    </div>
-    <div id="pagination" class="pagination"></div>
-    <div class="siteLogo"></div>
-    <p class="disclaimer">
-      To increase loading times, VODS will load in gradually and shorter VODS
-      will be replaced with longer VODS as a result
-    </p>
+      <div id="pagination" class="pagination"></div>
+    </main>
+    <footer id="footer-content">
+      <div class="siteLogo"></div>
+      <p class="disclaimer">
+        To increase loading times, VODS will load in gradually and shorter VODS
+        will be replaced with longer VODS as a result
+      </p>
+    </footer>
 
-    <script src="displayVods.js" defer></script>
+    <script type="module" src="display-vods.js" defer></script>
     <script defer>
       document.addEventListener("DOMContentLoaded", () => {
         const controls = document.querySelector(".controls-bar");
