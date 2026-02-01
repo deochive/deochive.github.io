@@ -47,24 +47,38 @@ function extractDate(video) {
 }
 
 function normalizeDate(dateStr) {
+  if (!dateStr.includes("/")) return dateStr;
   let [a, b, y] = dateStr.split("/").map(Number);
   if (a > 12) [a, b] = [b, a];
   return `${String(a).padStart(2, "0")}/${String(b).padStart(2, "0")}/${y}`;
 }
 
-function parseDateString(dateStr) {
-  const [mm, dd, yyyy] = normalizeDate(dateStr).split("/").map(Number);
-  return new Date(yyyy, mm - 1, dd);
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return "Unknown";
+  if (dateStr.includes("T")) {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "Unknown";
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  }
+  return normalizeDate(dateStr);
 }
 
-function normalizeText(text) {
-  return text.toLowerCase().replace(/[^a-z0-9\s]/g, "");
+
+function parseDateString(dateStr) {
+  if (!dateStr) return null;
+  if (!dateStr.includes("/")) return new Date(dateStr);
+  const [mm, dd, yyyy] = normalizeDate(dateStr).split("/").map(Number);
+  return new Date(yyyy, mm - 1, dd);
 }
 
 function prepareVideo(video) {
   const rawDate = extractDate(video);
   video._rawDate = rawDate;
-  video._parsedDate = rawDate ? parseDateString(rawDate) : null;
+  const parsed = rawDate ? parseDateString(rawDate) : null;
+  video._parsedDate = parsed && !isNaN(parsed) ? parsed : null;
   video._durationSeconds = convertToSeconds(durations[video.videoId] || "0:00");
 }
 
@@ -98,7 +112,7 @@ function renderVideos(videos) {
           <img src="${video.channelIcon}" class="creator-icon" alt="${video.channelTitle} channel icon"loading="lazy">
           <span class="creator-name">${video.channelTitle}</span>
         </div>
-        <div class="publish-date">YouTube upload date: ${date}</div>
+        <div class="publish-date">YouTube upload date: ${formatDisplayDate(rawDate)}</div>
       </div>
     </div>
   </div>
@@ -290,24 +304,50 @@ async function fetchChannelIcons(videos) {
   }
 }
 
-function prepareManualVideo(v) {
-  durations[v.videoId] = v.duration || "0:00";
-
-  return {
-    videoId: v.videoId,
-    title: v.title,
-    description: v.description || "",
-    thumbnail: v.thumbnail,
-    channelTitle: v.channelTitle,
-    channelIcon: v.channelIcon || "",
-    fromPlaylist: false,
-    manual: true,
-    _manualDate: v.date,
-  };
-}
-
 async function fetchManualVideos() {
-  return manualVideos;
+  const videoIds = manualVideos
+    .map((url) => {
+      const match = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
+    })
+    .filter(Boolean);
+
+  if (!videoIds.length) return [];
+
+  const batches = [];
+  for (let i = 0; i < videoIds.length; i += 50) {
+    batches.push(videoIds.slice(i, i + 50));
+  }
+
+  const results = [];
+  for (const batch of batches) {
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(
+        ","
+      )}&key=${kx}`
+    );
+    const data = await res.json();
+
+    data.items?.forEach((item) => {
+      const video = {
+        videoId: item.id,
+        title: item.snippet.title,
+        description: item.snippet.description,
+        thumbnail: item.snippet.thumbnails?.medium?.url || "",
+        channelTitle: item.snippet.channelTitle,
+        channelId: item.snippet.channelId,
+        channelIcon: "",
+        fromPlaylist: false,
+        manual: true,
+        _manualDate: item.snippet.publishedAt,
+      };
+      video._parsedDate = parseDateString(video._manualDate);
+      durations[video.videoId] = formatDuration(item.contentDetails?.duration || "PT0S");
+      results.push(video);
+    });
+  }
+  await fetchChannelIcons(results);
+  return results;
 }
 
 function loadFromCache() {
@@ -357,7 +397,6 @@ async function loadVideos() {
       return;
     }
     await refreshVideosInBackground(true);
-
   } catch (err) {
     console.error("LOAD VIDEOS ERROR:", err);
     container.innerHTML = "Failed to load videos.";
@@ -376,6 +415,7 @@ async function refreshVideosInBackground(force = false) {
       "UCvGZKQYEQ8nhqoUX89iEXWg",
     ];
     const playlistId = "PLcqL_aHxpQfLhXpa0dc1FhNGELRv9T_ss";
+
     let videos = [];
     const playlistVideos = await fetchPlaylistVideos(playlistId);
     videos.push(...playlistVideos);
@@ -384,9 +424,8 @@ async function refreshVideosInBackground(force = false) {
     const channelResults = await Promise.all(channelPromises);
     channelResults.forEach((list) => videos.push(...list));
 
-    const manualVideosRaw = await fetchManualVideos();
-    const manualVideos = manualVideosRaw.map(prepareManualVideo);
-    videos.push(...manualVideos);
+    const manualVideosFetched = await fetchManualVideos();
+    videos.push(...manualVideosFetched);
 
     const videoIds = videos.map((v) => v.videoId).filter(Boolean);
     const videoBatches = [];
@@ -395,7 +434,6 @@ async function refreshVideosInBackground(force = false) {
     }
 
     const seenDates = {};
-    const filteredVideos = [];
 
     async function loadNextBatch(batchIndex = 0) {
       if (batchIndex >= videoBatches.length) return;
@@ -403,37 +441,45 @@ async function refreshVideosInBackground(force = false) {
       const batch = videoBatches[batchIndex];
       const res = await fetch(
         `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(
-          ","
-        )}&key=${kx}`
+          ",",
+        )}&key=${kx}`,
       );
       const data = await res.json();
 
       data.items?.forEach((item) => {
         const video = videos.find((v) => v.videoId === item.id);
-        if (!video || video.manual) return;
+        if (!video) return;
 
         video.thumbnail =
           item.snippet.thumbnails?.medium?.url || video.thumbnail;
         video.channelTitle = item.snippet.channelTitle || video.channelTitle;
         video.channelId = item.snippet.channelId || video.channelId;
-        durations[item.id] = formatDuration(item.contentDetails?.duration || "PT0S");
+        durations[video.videoId] = formatDuration(
+          item.contentDetails?.duration || "PT0S",
+        );
 
-        const combinedText = (video.title + " " + video.description).toLowerCase();
-        const titleLower = video.title.toLowerCase();
-        const isSpecialVideo =
-          !titleLower.includes("opening") &&
-          (video.fromPlaylist ||
-            video.manual ||
-            combinedText.includes("brucedropemoff stream") ||
-            combinedText.includes("brucedropemoff vod") ||
-            combinedText.includes("ecurb"));
+        if (!video.manual) {
+          const combinedText = (
+            video.title +
+            " " +
+            video.description
+          ).toLowerCase();
+          const titleLower = video.title.toLowerCase();
+          const isSpecialVideo =
+            !titleLower.includes("opening") &&
+            (video.fromPlaylist ||
+              combinedText.includes("brucedropemoff stream") ||
+              combinedText.includes("brucedropemoff vod") ||
+              combinedText.includes("ecurb"));
 
-        if (!isSpecialVideo) return;
-        if (convertToSeconds(durations[video.videoId]) < 3600) return;
+          if (!isSpecialVideo) return;
+          if (convertToSeconds(durations[video.videoId]) < 3600) return;
+        }
+
         const rawDate = extractDate(video);
         if (!rawDate) return;
-
         const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
+
         if (
           !seenDates[parsedDate] ||
           convertToSeconds(durations[video.videoId]) >
@@ -443,19 +489,20 @@ async function refreshVideosInBackground(force = false) {
         }
       });
 
-      filteredVideos.length = 0;
-      filteredVideos.push(...Object.values(seenDates));
+      const filteredVideos = Object.values(seenDates);
       filteredVideos.sort(
-        (a, b) => parseDateString(extractDate(b)) - parseDateString(extractDate(a))
+        (a, b) =>
+          parseDateString(extractDate(b)) - parseDateString(extractDate(a)),
       );
       allVideos = filteredVideos;
       renderPage(currentPage);
       await fetchChannelIcons(allVideos);
+
       await loadNextBatch(batchIndex + 1);
     }
     await loadNextBatch();
 
-    manualVideos.forEach((video) => {
+    manualVideosFetched.forEach((video) => {
       const rawDate = extractDate(video);
       if (!rawDate) return;
       const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
@@ -472,10 +519,9 @@ async function refreshVideosInBackground(force = false) {
     allVideos = Object.values(seenDates);
     allVideos.forEach(prepareVideo);
     allVideos.sort((a, b) => b._parsedDate - a._parsedDate);
-    fetchChannelIcons(allVideos);
+    await fetchChannelIcons(allVideos);
     renderPage(1);
     saveToCache();
-
   } catch (err) {
     console.error("Background refresh failed:", err);
   } finally {

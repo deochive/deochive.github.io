@@ -252,12 +252,15 @@ p {
   gap: 8px;
   font-size: 12px;
   color: var(--acc4);
+  width: calc(100% - 6px);
 }
 
 .creator {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .creator-icon {
@@ -270,12 +273,15 @@ p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .publish-date {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .live-badge {
