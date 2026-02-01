@@ -8,6 +8,7 @@ let isLoading = false;
 let currentPage = 1;
 let currentSort = null;
 let isRefreshingCache = false;
+let currentQuery = "";
 const VIDEOS_PER_PAGE = 27;
 const container = document.getElementById("youtube-videos");
 const paginationContainer = document.getElementById("pagination");
@@ -65,7 +66,6 @@ function formatDisplayDate(dateStr) {
   }
   return normalizeDate(dateStr);
 }
-
 
 function parseDateString(dateStr) {
   if (!dateStr) return null;
@@ -205,24 +205,6 @@ function sortVideos(type) {
   renderPage(1);
 }
 
-function filterVideos() {
-  const query = normalizeText(
-    document.getElementById("video-search").value.trim(),
-  );
-  if (!query) {
-    renderPage(1);
-    return;
-  }
-
-  const filtered = allVideos.filter((video) => {
-    const title = normalizeText(video.title);
-    const creator = normalizeText(video.channelTitle);
-    return title.includes(query) || creator.includes(query);
-  });
-
-  renderPage(1, filtered);
-}
-
 async function fetchPlaylistVideos(playlistId) {
   let list = [],
     nextPageToken = "";
@@ -323,8 +305,8 @@ async function fetchManualVideos() {
   for (const batch of batches) {
     const res = await fetch(
       `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${batch.join(
-        ","
-      )}&key=${kx}`
+        ",",
+      )}&key=${kx}`,
     );
     const data = await res.json();
 
@@ -342,7 +324,9 @@ async function fetchManualVideos() {
         _manualDate: item.snippet.publishedAt,
       };
       video._parsedDate = parseDateString(video._manualDate);
-      durations[video.videoId] = formatDuration(item.contentDetails?.duration || "PT0S");
+      durations[video.videoId] = formatDuration(
+        item.contentDetails?.duration || "PT0S",
+      );
       results.push(video);
     });
   }
@@ -495,7 +479,7 @@ async function refreshVideosInBackground(force = false) {
           parseDateString(extractDate(b)) - parseDateString(extractDate(a)),
       );
       allVideos = filteredVideos;
-      renderPage(currentPage);
+      applySearch();
       await fetchChannelIcons(allVideos);
 
       await loadNextBatch(batchIndex + 1);
@@ -520,7 +504,7 @@ async function refreshVideosInBackground(force = false) {
     allVideos.forEach(prepareVideo);
     allVideos.sort((a, b) => b._parsedDate - a._parsedDate);
     await fetchChannelIcons(allVideos);
-    renderPage(1);
+    applySearch();
     saveToCache();
   } catch (err) {
     console.error("Background refresh failed:", err);
@@ -529,9 +513,20 @@ async function refreshVideosInBackground(force = false) {
   }
 }
 
-document
-  .getElementById("video-search")
-  ?.addEventListener("input", filterVideos);
+function applySearch() {
+  if (!currentQuery) {
+    renderPage(1);
+    return;
+  }
+
+  const filtered = allVideos.filter((video) => {
+    return (
+      video.title.toLowerCase().includes(currentQuery) ||
+      video.channelTitle.toLowerCase().includes(currentQuery)
+    );
+  });
+  renderPage(1, filtered);
+}
 
 sortButton.addEventListener("click", (e) => {
   e.stopPropagation();
@@ -569,6 +564,22 @@ sortOptions.forEach((option) => {
 
 document.addEventListener("click", () => {
   sortPopup.style.display = "none";
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("video-search");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      currentQuery = searchInput.value.trim().toLowerCase();
+      applySearch();
+    });
+  }
+
+  loadVideos().then(() => {
+    if (searchInput.value.trim() !== "") {
+      currentQuery = searchInput.value.trim().toLowerCase();
+    }
+  });
 });
 
 loadVideos();
