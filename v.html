@@ -11,9 +11,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://www.googleapis.com">
-    <link rel="stylesheet" href="body.css" defer />
-    <link rel="stylesheet" href="vod-style-MP.css" defer />
-    <link rel="stylesheet" href="vod-style-VP.css" defer />
+    <link rel="preload" href="body.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="body.css"></noscript>
+    <link rel="preload" href="vod-style-MP.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="vod-style-MP.css"></noscript>
+        <link rel="preload" href="body.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="body.css"></noscript>
+    <link rel="preload" href="vod-style-VP.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="vod-style-VP.css"></noscript>
     <script src="site-pref.js" defer></script>
     <script src="video-page.js" defer></script>
     <script src="vod-history.js" defer></script>
