@@ -18,6 +18,7 @@ const sortOptions = Array.from(sortPopup.querySelectorAll(".sort-option"));
 const CACHE_KEY = "cachedVideos_v1";
 const CACHE_TIME_KEY = "cachedVideos_time";
 const CACHE_TTL = 1000 * 60 * 60 * 6; // 6hrs cache time
+const channelIconCache = new Map();
 
 function formatDuration(isoDuration) {
   const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -221,7 +222,7 @@ async function fetchPlaylistVideos(playlistId) {
         thumbnail: item.snippet?.thumbnails?.medium?.url || "",
         description: item.snippet?.description || "",
         channelTitle: item.snippet?.videoOwnerChannelTitle || "Playlist Video",
-        channelIcon: item.snippet?.thumbnails?.default?.url || "",
+        channelIcon: "",
         fromPlaylist: true,
       })),
     );
@@ -267,23 +268,37 @@ async function fetchChannelVideos(channelId) {
 }
 
 async function fetchChannelIcons(videos) {
-  const uniqueChannelIds = [
-    ...new Set(videos.map((v) => v.channelId).filter(Boolean)),
+  const missingChannelIds = [
+    ...new Set(
+      videos
+        .map((v) => v.channelId)
+        .filter((id) => id && !channelIconCache.has(id)),
+    ),
   ];
 
-  for (let i = 0; i < uniqueChannelIds.length; i += 50) {
-    const batch = uniqueChannelIds.slice(i, i + 50);
+  if (!missingChannelIds.length) return;
+  for (let i = 0; i < missingChannelIds.length; i += 50) {
+    const batch = missingChannelIds.slice(i, i + 50);
+
     const res = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${batch.join(",")}&key=${kx}`,
     );
     const data = await res.json();
     data.items?.forEach((item) => {
       const icon = item.snippet?.thumbnails?.default?.url || "";
-      videos.forEach((v) => {
-        if (v.channelId === item.id) v.channelIcon = icon;
-      });
+      channelIconCache.set(item.id, icon);
     });
   }
+
+  videos.forEach((v) => {
+    if (
+      channelIconCache.has(v.channelId) &&
+      (!v.channelIcon || v.channelIcon === v.thumbnail)
+    ) {
+      v.channelIcon = channelIconCache.get(v.channelId);
+    }
+  });
+  applySearch();
 }
 
 async function fetchManualVideos() {
@@ -318,7 +333,7 @@ async function fetchManualVideos() {
         thumbnail: item.snippet.thumbnails?.medium?.url || "",
         channelTitle: item.snippet.channelTitle,
         channelId: item.snippet.channelId,
-        channelIcon: "",
+        channelIcon: channelIconCache.get(item.snippet?.channelId) || "",
         fromPlaylist: false,
         manual: true,
         _manualDate: item.snippet.publishedAt,

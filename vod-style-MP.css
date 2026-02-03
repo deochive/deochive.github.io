@@ -4,29 +4,26 @@
   display: flex;
   justify-content: center;
   overflow: visible;
+  top: 0;
 }
 
 .controls-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-
   text-align: center;
   margin: 0;
   padding: 8px;
   width: 100%;
   box-sizing: border-box;
-
   row-gap: 10px;
   column-gap: 12px;
-
   background: transparent;
   transition:
     background 0.3s ease,
     backdrop-filter 0.3s ease,
     padding 0.3s ease,
     height 0.3s ease;
-
   height: auto;
   overflow: visible;
 }
