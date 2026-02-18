@@ -164,7 +164,6 @@ a:hover {
 
 body.theatre-mode .theatre-container {
   opacity: 1;
-  transition: opacity 0.3s ease;
 }
 
 body.theatre-mode #player {
