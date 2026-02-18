@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const pxk = "h6e18v19zv1lzx36kyv700os8adys0";
   const dpq = "iiup8vm86l2ubrgjoci7w1cvvv07j7";
   const userElements = new Map();
-  const dismissed = sessionStorage.getItem(`live-dismissed-${username}`);
   async function isUserLive(username) {
     try {
       const res = await fetch(
@@ -60,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function updateLiveStatus() {
     for (const username of users) {
+      const dismissed = sessionStorage.getItem(`live-dismissed-${username}`);
       const live = await isUserLive(username);
       const existingEl = userElements.get(username);
 
