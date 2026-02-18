@@ -4,30 +4,85 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VOD</title>
-      <meta
+    <meta
       name="description"
       content="A BruceDropEmOff Stream Archive — a searchable archive of BruceDropEmOff VODs. Sort by date, length, title, or creator, view watch history, and browse available streams uploaded on YouTube through embeds."
     />
-    <link rel="icon" type="image/png" href="./images/icons/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="./images/small-logo.ico/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="./images/icons/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="./images/small-logo.ico/favicon.svg"
+    />
     <link rel="shortcut icon" href="./images/small-logo.ico/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./images/small-logo.ico/apple-touch-icon.png" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./images/small-logo.ico/apple-touch-icon.png"
+    />
     <meta name="apple-mobile-web-app-title" content="DEOchive" />
     <link rel="manifest" href="./images/small-logo.ico/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://www.googleapis.com">
-    <link rel="preload" href="body.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="body.css"></noscript>
-    <link rel="preload" href="vod-style-MP.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="vod-style-MP.css"></noscript>
-        <link rel="preload" href="body.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="body.css"></noscript>
-    <link rel="preload" href="vod-style-VP.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="vod-style-VP.css"></noscript>
+    <link rel="preconnect" href="https://www.googleapis.com" />
+    <link
+      rel="preload"
+      href="body.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link rel="stylesheet" href="body.css" />
+    </noscript>
+    <link
+      rel="preload"
+      href="vod-style-MP.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link rel="stylesheet" href="vod-style-MP.css" />
+    </noscript>
+    <link
+      rel="preload"
+      href="vod-style-VP.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link rel="stylesheet" href="vod-style-VP.css" />
+    </noscript>
+    <link
+      rel="preload"
+      href="live-style.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link rel="stylesheet" href="live-style.css" />
+    </noscript>
     <script src="site-pref.js" defer></script>
     <script src="video-page.js" defer></script>
     <script src="vod-history.js" defer></script>
+    <script src="theatre-mode.js" defer></script>
+    <script src="live-detection.js" defer></script>
   </head>
 
   <body>
@@ -41,6 +96,7 @@
 
         <a href="index.html" class="back-link-button">&lt; Back</a>
         <button id="theme-toggle" type="button">Toggle theme</button>
+        <button id="theatre-toggle">Theatre Mode</button>
       </div>
     </div>
 

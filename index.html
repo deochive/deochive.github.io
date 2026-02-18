@@ -20,9 +20,17 @@
     <link rel="preconnect" href="https://www.googleapis.com">
     <link rel="preconnect" href="https://api.twitch.tv">
     <link rel="preload" href="body.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="body.css"></noscript>
+    <noscript>
+      <link rel="stylesheet" href="body.css">
+    </noscript>
     <link rel="preload" href="vod-style-MP.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="vod-style-MP.css"></noscript>
+    <noscript>
+      <link rel="stylesheet" href="vod-style-MP.css">
+    </noscript>
+    <link rel="preload" href="live-style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link rel="stylesheet" href="live-style.css">
+    </noscript>
     <script src="site-pref.js" defer></script>
     <script src="live-detection.js" defer></script>
     <script src="vod-history.js" defer></script>
@@ -54,16 +62,16 @@
             Length (Shortest)
           </div>
           <div class="sort-option" tabindex="0" data-sort="title-az">
-            Title A–Z
+            Title (A–Z)
           </div>
           <div class="sort-option" tabindex="0" data-sort="title-za">
-            Title Z–A
+            Title (Z–A)
           </div>
           <div class="sort-option" tabindex="0" data-sort="creator-az">
-            Creator A–Z
+            Creator (A–Z)
           </div>
           <div class="sort-option" tabindex="0" data-sort="creator-za">
-            Creator Z–A
+            Creator (Z–A)
           </div>
         </div>
         <input
@@ -76,26 +84,22 @@
         <button id="history-toggle">History</button>
       </div>
     </div>
-
     <main id="main-content">
       <div class="content-wrapper">
-        <div id="youtube-videos" class="videos-grid"></div>
-
+        <div id="youtube-videos" class="videos-grid skeleton"></div>
         <div id="watch-history" class="watch-history">
           <div class="history-header">
             <h3>Your history</h3>
-
             <div class="history-actions">
               <button id="history-pin" title="Pin sidebar">📌</button>
               <button id="history-close" title="Close">✕</button>
             </div>
           </div>
-
           <div id="history-list"></div>
         </div>
       </div>
-      <div id="pagination" class="pagination"></div>
     </main>
+    <div id="pagination" class="pagination"></div>
     <footer id="footer-content">
       <div class="siteLogo"></div>
       <p class="disclaimer">

@@ -1,7 +1,9 @@
 a {
   color: #5656fc;
   text-decoration: none;
-  transition: color 0.2s, text-decoration 0.2s;
+  transition:
+    color 0.2s,
+    text-decoration 0.2s;
 }
 
 a:hover {
@@ -60,9 +62,24 @@ a:hover {
   padding: 10px;
   background-color: var(--acc3);
   border-radius: 8px;
-
+  transition: background 0.2s ease;
   display: flex;
   flex-direction: column;
+}
+
+#video-container iframe {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
+}
+
+#video-info {
+  transition:
+    background-color 0.3s ease,
+    filter 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .video-title {
@@ -71,35 +88,95 @@ a:hover {
   text-align: left;
 }
 
-.publish-date {
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: #888;
-}
-
-.video-wrapper {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-}
-
-.video-wrapper iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.watch-youtube {
-  display: inline-block;
-  margin: 10px 0 18px;
-  font-weight: 500;
-}
-
 .video-description {
   padding: 3px;
   line-height: 1.5;
   color: var(--acc4);
   background-color: var(--bg);
   border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.video-stats {
+  font-size: 14px;
+  color: #888;
+}
+
+.video-data {
+  display: flex;
+  align-items: flex-start;
+  gap: 25px;
+}
+
+.watch-youtube {
+  display: inline-block;
+  margin: 15px 0 15px;
+  font-weight: 500;
+  padding: 0;
+}
+
+.channel-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.channel-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.channel-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.creator-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.subscriber-count {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.video-stats {
+  font-size: 14px;
+  color: #888;
+}
+
+.theatre-container {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 998;
+  pointer-events: none;
+}
+
+body.theatre-mode .theatre-container {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+body.theatre-mode #player {
+  position: relative;
+  z-index: 999;
+  filter: none !important;
+  pointer-events: auto;
+}
+
+body.theatre-mode .controls-bar-wrapper {
+  position: relative;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 1);
+  filter: none !important;
 }

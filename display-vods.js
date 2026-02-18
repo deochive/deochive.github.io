@@ -1,7 +1,20 @@
-import manualVideos from "./manual-vods.js";
+import {
+  durations,
+  allVideos,
+  container,
+  VIDEOS_PER_PAGE,
+} from "./share-mod.js";
+import {
+  prepareVideo,
+  renderVideos,
+  renderSkeletons,
+  parseDateString,
+  extractDate,
+  convertToSeconds,
+  formatDuration,
+} from "./vod-utils.js";
+
 const kx = "AIzaSyCdgQXCJk3uMF9Afiu-XnBr6RwO-31n2_0";
-let allVideos = [];
-let durations = {};
 let videoBatches = [];
 let loadedBatches = 0;
 let isLoading = false;
@@ -9,8 +22,6 @@ let currentPage = 1;
 let currentSort = null;
 let isRefreshingCache = false;
 let currentQuery = "";
-const VIDEOS_PER_PAGE = 40;
-const container = document.getElementById("youtube-videos");
 const paginationContainer = document.getElementById("pagination");
 const sortButton = document.getElementById("sort-button");
 const sortPopup = document.getElementById("sort-popup");
@@ -19,107 +30,6 @@ const CACHE_KEY = "cachedVideos_v1";
 const CACHE_TIME_KEY = "cachedVideos_time";
 const CACHE_TTL = 1000 * 60 * 60 * 6; // 6hrs cache time
 const channelIconCache = new Map();
-
-function formatDuration(isoDuration) {
-  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return "0:00";
-  const h = parseInt(match[1] || 0);
-  const m = parseInt(match[2] || 0);
-  const s = parseInt(match[3] || 0);
-  return h > 0
-    ? `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
-    : `${m}:${s.toString().padStart(2, "0")}`;
-}
-
-function convertToSeconds(duration) {
-  const parts = duration.split(":").map(Number);
-  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  if (parts.length === 2) return parts[0] * 60 + parts[1];
-  return 0;
-}
-
-function extractDate(video) {
-  if (video._manualDate) return video._manualDate;
-  let match = video.description?.match(/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/);
-  if (match) return match[1];
-  match = video.title?.match(/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/);
-  if (match) return match[1];
-
-  return null;
-}
-
-function normalizeDate(dateStr) {
-  if (!dateStr.includes("/")) return dateStr;
-  let [a, b, y] = dateStr.split("/").map(Number);
-  if (a > 12) [a, b] = [b, a];
-  return `${String(a).padStart(2, "0")}/${String(b).padStart(2, "0")}/${y}`;
-}
-
-function formatDisplayDate(dateStr) {
-  if (!dateStr) return "Unknown";
-  if (dateStr.includes("T")) {
-    const d = new Date(dateStr);
-    if (isNaN(d)) return "Unknown";
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const yyyy = d.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
-  }
-  return normalizeDate(dateStr);
-}
-
-function parseDateString(dateStr) {
-  if (!dateStr) return null;
-  if (!dateStr.includes("/")) return new Date(dateStr);
-  const [mm, dd, yyyy] = normalizeDate(dateStr).split("/").map(Number);
-  return new Date(yyyy, mm - 1, dd);
-}
-
-function prepareVideo(video) {
-  const rawDate = extractDate(video);
-  video._rawDate = rawDate;
-  const parsed = rawDate ? parseDateString(rawDate) : null;
-  video._parsedDate = parsed && !isNaN(parsed) ? parsed : null;
-  video._durationSeconds = convertToSeconds(durations[video.videoId] || "0:00");
-}
-
-function renderVideos(videos) {
-  container.innerHTML = "";
-  videos.forEach((video, index) => {
-    const rawDate = extractDate(video);
-    const date = rawDate ? normalizeDate(rawDate) : "Unknown";
-    const isFirst = index === 0;
-    container.innerHTML += `
-<a href="v.html?videoId=${video.videoId}" class="video-link">
-  <div class="video"
-    data-date="${rawDate ? parseDateString(rawDate).toISOString() : ""}"
-    data-length="${convertToSeconds(durations[video.videoId] || "0:00")}"
-    data-title="${video.title.toLowerCase()}"
-    data-creator="${video.channelTitle.toLowerCase()}"
-  >
-    <div class="thumbnail-container">
-      <img
-        src="${video.thumbnail}"
-        alt="${video.title}"
-        ${isFirst ? 'fetchpriority="high" loading="eager"' : 'loading="lazy"'}
-        decoding="async"
-      >
-      <span class="duration">${durations[video.videoId]}</span>
-    </div>
-    <div class="video-content">
-      <p class="title"><strong>${video.title}</strong></p>
-      <div class="info">
-        <div class="creator">
-          <img src="${video.channelIcon}" class="creator-icon" alt="${video.channelTitle} channel icon"loading="lazy">
-          <span class="creator-name">${video.channelTitle}</span>
-        </div>
-        <div class="publish-date">YouTube upload date: ${formatDisplayDate(rawDate)}</div>
-      </div>
-    </div>
-  </div>
-</a>`;
-  });
-}
 
 function renderPage(page, videos = allVideos) {
   currentPage = page;
@@ -302,7 +212,11 @@ async function fetchChannelIcons(videos) {
 }
 
 async function fetchManualVideos() {
-  const videoIds = manualVideos
+  if (!Array.isArray(window.manualVideos)) {
+    return [];
+  }
+
+  const videoIds = window.manualVideos
     .map((url) => {
       const match = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
       return match ? match[1] : null;
@@ -355,9 +269,10 @@ function loadFromCache() {
     if (!cached) return false;
 
     const parsed = JSON.parse(cached);
-    allVideos = parsed.videos || [];
-    durations = parsed.durations || {};
-
+    allVideos.length = 0;
+    allVideos.push(...(parsed.videos || []));
+    Object.keys(durations).forEach((k) => delete durations[k]);
+    Object.assign(durations, parsed.durations || {});
     allVideos.forEach(prepareVideo);
     renderPage(1);
 
@@ -389,13 +304,17 @@ function isCacheFresh() {
 }
 
 async function loadVideos() {
+  renderSkeletons(VIDEOS_PER_PAGE);
   try {
     const hadCache = loadFromCache();
-    if (hadCache) {
+    if (!hadCache) {
+      await refreshVideosInBackground(true);
+      if (allVideos.length > 0) {
+        renderPage(1);
+      }
+    } else {
       refreshVideosInBackground();
-      return;
     }
-    await refreshVideosInBackground(true);
   } catch (err) {
     console.error("LOAD VIDEOS ERROR:", err);
     container.innerHTML = "Failed to load videos.";
@@ -408,10 +327,10 @@ async function refreshVideosInBackground(force = false) {
 
   try {
     const channelIds = [
-      "UC7uyXhlffDK6AAWxh1PGXWg",
+      "UCvGZKQYEQ8nhqoUX89iEXWg",
       "UCS5oTYx88yJrnyS37eB-0XQ",
       "UCBbGvsqEVGMGEO13Y8rg3Lg",
-      "UCvGZKQYEQ8nhqoUX89iEXWg",
+      "UC7uyXhlffDK6AAWxh1PGXWg",
     ];
     const playlistId = "PLcqL_aHxpQfLhXpa0dc1FhNGELRv9T_ss";
 
@@ -477,26 +396,47 @@ async function refreshVideosInBackground(force = false) {
 
         const rawDate = extractDate(video);
         if (!rawDate) return;
-        const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
 
-        if (
-          !seenDates[parsedDate] ||
-          convertToSeconds(durations[video.videoId]) >
-            convertToSeconds(durations[seenDates[parsedDate].videoId])
-        ) {
-          seenDates[parsedDate] = video;
+        const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
+        if (!seenDates[parsedDate]) {
+          seenDates[parsedDate] = [];
+        }
+
+        const isPartVideo = /part\s?\d+/i.test(video.title);
+        if (!seenDates[parsedDate].length) {
+          seenDates[parsedDate].push(video);
+        } else {
+          const existingVideos = seenDates[parsedDate];
+
+          if (isPartVideo) {
+            existingVideos.push(video);
+          } else {
+            const longest = existingVideos.reduce((a, b) =>
+              convertToSeconds(durations[a.videoId]) >
+              convertToSeconds(durations[b.videoId])
+                ? a
+                : b,
+            );
+
+            if (
+              convertToSeconds(durations[video.videoId]) >
+              convertToSeconds(durations[longest.videoId])
+            ) {
+              seenDates[parsedDate] = [video];
+            }
+          }
         }
       });
 
-      const filteredVideos = Object.values(seenDates);
+      const filteredVideos = Object.values(seenDates).flat();
       filteredVideos.sort(
         (a, b) =>
           parseDateString(extractDate(b)) - parseDateString(extractDate(a)),
       );
-      allVideos = filteredVideos;
+      allVideos.length = 0;
+      allVideos.push(...filteredVideos);
       applySearch();
       await fetchChannelIcons(allVideos);
-
       await loadNextBatch(batchIndex + 1);
     }
     await loadNextBatch();
@@ -504,23 +444,48 @@ async function refreshVideosInBackground(force = false) {
     manualVideosFetched.forEach((video) => {
       const rawDate = extractDate(video);
       if (!rawDate) return;
-      const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
 
-      if (
-        !seenDates[parsedDate] ||
-        convertToSeconds(durations[video.videoId]) >
-          convertToSeconds(durations[seenDates[parsedDate].videoId])
-      ) {
-        seenDates[parsedDate] = video;
+      const parsedDate = parseDateString(rawDate).toISOString().split("T")[0];
+      if (!seenDates[parsedDate]) {
+        seenDates[parsedDate] = [];
+      }
+
+      const isPartVideo = /part\s?\d+/i.test(video.title);
+      if (!seenDates[parsedDate].length) {
+        seenDates[parsedDate].push(video);
+      } else {
+        const existingVideos = seenDates[parsedDate];
+
+        if (isPartVideo) {
+          existingVideos.push(video);
+        } else {
+          const longest = existingVideos.reduce((a, b) =>
+            convertToSeconds(durations[a.videoId]) >
+            convertToSeconds(durations[b.videoId])
+              ? a
+              : b,
+          );
+
+          if (
+            convertToSeconds(durations[video.videoId]) >
+            convertToSeconds(durations[longest.videoId])
+          ) {
+            seenDates[parsedDate] = [video];
+          }
+        }
       }
     });
 
-    allVideos = Object.values(seenDates);
+    allVideos.length = 0;
+    allVideos.push(...Object.values(seenDates).flat());
     allVideos.forEach(prepareVideo);
     allVideos.sort((a, b) => b._parsedDate - a._parsedDate);
     await fetchChannelIcons(allVideos);
     applySearch();
     saveToCache();
+    if (!currentQuery) {
+      renderPage(1);
+    }
   } catch (err) {
     console.error("Background refresh failed:", err);
   } finally {
@@ -596,5 +561,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-loadVideos();
