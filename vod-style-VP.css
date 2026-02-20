@@ -97,6 +97,11 @@ a:hover {
   transition: background 0.2s ease;
 }
 
+.video-description a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .video-stats {
   font-size: 14px;
   color: #888;
