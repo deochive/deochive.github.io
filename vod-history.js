@@ -105,11 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
     pinBtn.classList.toggle("active", pinned);
   });
 
-  list?.addEventListener("click", e => {
-    const item = e.target.closest(".history-item");
-    if (!item) return;
-    window.location.href = `v.html?videoId=${item.dataset.videoId}`;
-  });
+list?.addEventListener("click", e => {
+  const item = e.target.closest(".history-item");
+  if (!item) return;
+  window.location.href = `vod/?videoId=${item.dataset.videoId}`;
+});
 
   addCurrentVideoFromPage();
   renderHistory();

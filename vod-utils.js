@@ -98,7 +98,7 @@ export function renderVideos(videos) {
     const isFirst = index === 0;
 
     container.innerHTML += `
-<a href="v.html?videoId=${video.videoId}" class="video-link">
+<a href="vod/?videoId=MDsolMqwrhc" class="video-link">
   <div class="video"
     data-date="${rawDate ? parseDateString(rawDate).toISOString() : ""}"
     data-length="${convertToSeconds(durations?.[video.videoId] || "0:00")}"
@@ -122,7 +122,7 @@ export function renderVideos(videos) {
           <span class="creator-name">${video.channelTitle}</span>
         </div>
         <div class="publish-date">
-          VOD Date: ${formatDisplayDate(rawDate)}
+          Date: ${formatDisplayDate(rawDate)}
         </div>
       </div>
     </div>
