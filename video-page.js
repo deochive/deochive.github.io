@@ -172,7 +172,7 @@ function onYouTubeIframeAPIReady() {
   const container = document.getElementById("video-container");
   if (!container) return console.error("No #video-container found");
 
-  currentVideoId = getQueryParam("videoId") || "dQw4w9WgXcQ";
+  currentVideoId = getQueryParam("videoId") || "";
   startTime = Number(getQueryParam("t") || 0);
   let playerEl = document.getElementById("player");
   if (!playerEl) {

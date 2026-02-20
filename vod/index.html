@@ -118,5 +118,18 @@
         updateShrink();
       })();
     </script>
+  <script>
+    const allowedHost = "deochive.github.io";
+    if (window.location.hostname !== allowedHost) {
+      window.location.href = "https://deochive.github.io";
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('videoId');
+    const validVideoIdPattern = /^[a-zA-Z0-9_-]{11}$/;
+    if (!videoId || !validVideoIdPattern.test(videoId)) {
+      window.location.href = "https://deochive.github.io";
+    }
+  </script>
   </body>
 </html>
