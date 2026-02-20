@@ -13,11 +13,9 @@ function saveHistory() {
 }
 
 function addToHistory(video) {
-  cachedHistory = loadHistory().filter((v) => v.videoId !== video.videoId);
-
+  cachedHistory = loadHistory().filter(v => v.videoId !== video.videoId);
   cachedHistory.unshift(video);
   cachedHistory.length = Math.min(cachedHistory.length, MAX_HISTORY);
-
   saveHistory();
   renderHistory();
 }
@@ -34,13 +32,8 @@ function renderHistory() {
     item.dataset.videoId = videoId;
     item.setAttribute("aria-label", `Watch ${title} by ${channelTitle}`);
     item.innerHTML = `
-      <img 
-        src="${thumbnail}" 
-        alt="" 
-        loading="lazy"
-        width="160"
-        height="90"
-      >
+      <img src="${thumbnail || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}" 
+           alt="${title}" width="160" height="90" loading="lazy">
       <div>
         <div class="history-title">${title}</div>
         <div class="history-meta">${channelTitle}</div>
@@ -48,7 +41,46 @@ function renderHistory() {
     `;
     fragment.appendChild(item);
   });
+
   list.replaceChildren(fragment);
+}
+
+function addCurrentVideoFromPage() {
+  const iframe = document.querySelector("#player");
+  if (!iframe?.src) return;
+
+  const match = iframe.src.match(/\/embed\/([^?&]+)/);
+  if (!match) return;
+  const videoId = match[1];
+  const waitForElements = () => {
+    const titleEl = document.querySelector("h1.video-title");
+    const channelEl = document.querySelector(".channel-row .creator-name");
+
+    if (titleEl && channelEl) {
+      const title = titleEl.textContent.trim();
+      const channelTitle = channelEl.textContent.trim();
+      const thumbnail = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+      addToHistory({ videoId, title, channelTitle, thumbnail });
+    } else {
+      setTimeout(waitForElements, 100);
+    }
+  };
+  waitForElements();
+}
+
+function observeVideoChanges() {
+  let lastVideoId = null;
+  setInterval(() => {
+    const iframe = document.querySelector("#player");
+    if (!iframe?.src) return;
+
+    const match = iframe.src.match(/\/embed\/([^?&]+)/);
+    const videoId = match ? match[1] : null;
+    if (videoId && videoId !== lastVideoId) {
+      lastVideoId = videoId;
+      addCurrentVideoFromPage();
+    }
+  }, 500);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -60,10 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   historyBtn?.addEventListener("click", () => {
     const open = wrapper.classList.toggle("history-open");
-    if (!open) {
-      wrapper.classList.remove("history-pinned");
-      pinBtn.classList.remove("active");
-    }
+    if (!open) wrapper.classList.remove("history-pinned"), pinBtn.classList.remove("active");
   });
 
   closeBtn?.addEventListener("click", () => {
@@ -76,11 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
     pinBtn.classList.toggle("active", pinned);
   });
 
-  list?.addEventListener("click", (e) => {
+  list?.addEventListener("click", e => {
     const item = e.target.closest(".history-item");
     if (!item) return;
-
     window.location.href = `v.html?videoId=${item.dataset.videoId}`;
   });
+
+  addCurrentVideoFromPage();
   renderHistory();
+  observeVideoChanges();
 });
