@@ -50,6 +50,28 @@ function processDescription(text) {
   );
 }
 
+function getCachedData(key) {
+  const cached = localStorage.getItem(key);
+  if (!cached) return null;
+
+  const { data, expiry } = JSON.parse(cached);
+
+  if (Date.now() > expiry) {
+    localStorage.removeItem(key);
+    return null;
+  }
+
+  return data;
+}
+
+function setCachedData(key, data, ttlMs) {
+  const payload = {
+    data,
+    expiry: Date.now() + ttlMs,
+  };
+  localStorage.setItem(key, JSON.stringify(payload));
+}
+
 async function loadVideoData() {
   const container = document.getElementById("video-container");
   if (!container) return;
@@ -63,10 +85,16 @@ async function loadVideoData() {
 
   try {
     const videoId = currentVideoId;
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${kx}`
-    );
-    const data = await res.json();
+    const cacheKey = `video_${videoId}`;
+    let data = getCachedData(cacheKey);
+
+    if (!data) {
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${kx}`
+      );
+      data = await res.json();
+      setCachedData(cacheKey, data, 60 * 60 * 1000);
+    }
     if (!data.items?.length) {
       infoContainer.textContent = "Video not found.";
       return;
@@ -76,13 +104,23 @@ async function loadVideoData() {
     const { title, channelTitle, description, publishedAt, channelId } =
       videoData.snippet;
     const { viewCount, likeCount } = videoData.statistics;
-    const channelRes = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${kx}`
-    );
-    const channelData = await channelRes.json();
+    const channelCacheKey = `channel_${channelId}`;
+    let channelData = getCachedData(channelCacheKey);
+
+    if (!channelData) {
+      const channelRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${kx}`
+      );
+      channelData = await channelRes.json();
+
+      setCachedData(channelCacheKey, channelData, 60 * 60 * 1000);
+    }
     const channelSnippet = channelData.items?.[0]?.snippet;
     const channelStats = channelData.items?.[0]?.statistics;
-    const channelIcon = channelSnippet?.thumbnails?.medium?.url || "";
+    let channelIcon = channelSnippet?.thumbnails?.medium?.url || "";
+    if (channelIcon.includes("=s240")) {
+      channelIcon = channelIcon.replace("=s240", "=s88");
+    }
     const subscriberCount = channelStats?.subscriberCount;
     const publishDate = formatDate(publishedAt);
 

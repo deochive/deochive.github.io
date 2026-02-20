@@ -25,21 +25,27 @@ function addToHistory(video) {
 function renderHistory() {
   const list = document.getElementById("history-list");
   if (!list) return;
+
   const fragment = document.createDocumentFragment();
-
   loadHistory().forEach(({ videoId, title, channelTitle, thumbnail }) => {
-    const item = document.createElement("div");
+    const item = document.createElement("button");
     item.className = "history-item";
+    item.type = "button";
     item.dataset.videoId = videoId;
-
+    item.setAttribute("aria-label", `Watch ${title} by ${channelTitle}`);
     item.innerHTML = `
-      <img src="${thumbnail}" alt="">
+      <img 
+        src="${thumbnail}" 
+        alt="" 
+        loading="lazy"
+        width="160"
+        height="90"
+      >
       <div>
         <div class="history-title">${title}</div>
         <div class="history-meta">${channelTitle}</div>
       </div>
     `;
-
     fragment.appendChild(item);
   });
   list.replaceChildren(fragment);
