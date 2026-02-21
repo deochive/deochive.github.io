@@ -31,8 +31,12 @@ function timestampToSeconds(ts) {
 }
 
 function escapeHTML(str) {
-  return str.replace(/[&<>"']/g, (m) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m]
+  return str.replace(
+    /[&<>"']/g,
+    (m) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        m
+      ],
   );
 }
 
@@ -42,11 +46,11 @@ function processDescription(text) {
   return escaped.replace(
     /(https?:\/\/[^\s<]+)|\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g,
     (match, url, ts) => {
-      if (url) return `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+      if (url)
+        return `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
       const seconds = timestampToSeconds(ts);
       return `<a href="?v=${currentVideoId}&t=${seconds}" class="timestamp" data-seconds="${seconds}">${ts}</a>`;
-
-    }
+    },
   );
 }
 
@@ -90,7 +94,7 @@ async function loadVideoData() {
 
     if (!data) {
       const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${kx}`
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${kx}`,
       );
       data = await res.json();
       setCachedData(cacheKey, data, 60 * 60 * 1000);
@@ -109,7 +113,7 @@ async function loadVideoData() {
 
     if (!channelData) {
       const channelRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${kx}`
+        `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${kx}`,
       );
       channelData = await channelRes.json();
 
@@ -133,11 +137,17 @@ async function loadVideoData() {
           ${publishDate ? ` • YouTube upload date: ${publishDate}` : ""}
         </div>
       </div>
-      <a class="watch-youtube"
-         href="https://www.youtube.com/watch?v=${videoId}"
-         target="_blank" rel="noopener">
-        ▶ Watch on YouTube
-      </a>
+      <div class="video-actions">
+        <a class="video-button watch-youtube"
+          href="https://www.youtube.com/watch?v=${videoId}"
+          target="_blank" rel="noopener">
+          ▶ Watch on YouTube
+        </a>
+
+        <button type="button" class="video-button share-video">
+          🔗 Share
+        </button>
+      </div>
       <div class="channel-row">
         <img class="channel-icon" src="${channelIcon}" alt="Channel icon">
         <div class="channel-info">
@@ -188,7 +198,7 @@ function onYouTubeIframeAPIReady() {
       onReady: (ev) => {
         playerReady = true;
         if (startTime) ev.target.seekTo(startTime, true);
-        timestampQueue.forEach(sec => ev.target.seekTo(sec, true));
+        timestampQueue.forEach((sec) => ev.target.seekTo(sec, true));
         timestampQueue = [];
 
         ev.target.playVideo();
@@ -203,7 +213,7 @@ document.addEventListener("click", (e) => {
   const ts = e.target.closest(".timestamp");
   if (!ts) return;
   e.preventDefault();
-  
+
   const seconds = Number(ts.dataset.seconds);
   if (Number.isNaN(seconds)) return;
   if (!playerReady || !player) {

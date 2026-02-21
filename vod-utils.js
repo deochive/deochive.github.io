@@ -98,7 +98,7 @@ export function renderVideos(videos) {
     const isFirst = index === 0;
 
     container.innerHTML += `
-<a href="vod/?videoId=MDsolMqwrhc" class="video-link">
+<a href="vod/?videoId=${video.videoId}" class="video-link">
   <div class="video"
     data-date="${rawDate ? parseDateString(rawDate).toISOString() : ""}"
     data-length="${convertToSeconds(durations?.[video.videoId] || "0:00")}"

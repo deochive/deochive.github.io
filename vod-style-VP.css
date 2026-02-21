@@ -113,11 +113,43 @@ a:hover {
   gap: 25px;
 }
 
-.watch-youtube {
-  display: inline-block;
-  margin: 15px 0 15px;
+.video-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.video-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--acc3);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
   font-weight: 500;
-  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  text-decoration: none;
+
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+.video-button:hover {
+  background: var(--acc1);
+  color: #000000;
+  text-decoration: none;
+}
+
+.share-video.copied {
+  box-shadow: 0 0 8px 2px var(--acc5);
 }
 
 .channel-row {
