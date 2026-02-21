@@ -56,7 +56,7 @@
     </noscript>
     <link
       rel="preload"
-      href="../vod-style-VP.css"
+      href="./vod-style-VP.css"
       as="style"
       onload="
         this.onload = null;
@@ -64,7 +64,7 @@
       "
     />
     <noscript>
-      <link rel="stylesheet" href="../vod-style-VP.css" />
+      <link rel="stylesheet" href="./vod-style-VP.css" />
     </noscript>
     <link
       rel="preload"
@@ -79,11 +79,11 @@
       <link rel="stylesheet" href="../live-style.css" />
     </noscript>
     <script src="../site-pref.js" defer></script>
-    <script src="../video-page.js" defer></script>
+    <script src="./video-page.js" defer></script>
     <script src="../vod-history.js" defer></script>
     <script src="../theatre-mode.js" defer></script>
     <script src="../live-detection.js" defer></script>
-    <script src="../copy-url.js" defer></script>
+    <script src="./copy-url.js" defer></script>
   </head>
 
   <body>
@@ -119,7 +119,7 @@
         updateShrink();
       })();
     </script>
-  <!--<script>
+  <script>
     const allowedHost = "deochive.github.io";
     if (window.location.hostname !== allowedHost) {
       window.location.href = "https://deochive.github.io";
@@ -131,6 +131,6 @@
     if (!videoId || !validVideoIdPattern.test(videoId)) {
       window.location.href = "https://deochive.github.io";
     }
-  </script>-->
+  </script>
   </body>
 </html>

@@ -139,6 +139,7 @@
   gap: 16px;
   padding: 16px;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .video-link {
@@ -289,7 +290,7 @@ p {
 .sort-popup {
   position: absolute;
   top: 100%;
-  background: rgba(2, 3, 5, 0.95);
+  background: var(--acc2);
   border: 1px solid var(--acc1);
   border-radius: 8px;
   padding: 8px;
@@ -311,17 +312,15 @@ p {
   transition:
     background 0.2s,
     color 0.2s;
-  color: #fff;
+  color: var(--text)
 }
 
 #sort-button:hover {
   background: var(--acc1);
-  color: var(--acc2);
 }
 
 .sort-popup .sort-option:hover {
   background: var(--acc1);
-  color: var(--acc2);
 }
 
 .content-wrapper {
