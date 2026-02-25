@@ -89,11 +89,12 @@
     <script src="./account/connect.js" defer></script>
   </head>
   <body class="page-home">
+    <header>
+    <h1 class="visually-hidden">Search for videos page</h1>
     <p class="disclaimer">
       This site works through YouTube embedded videos, it does <u>not</u> host
       any videos
     </p>
-
     <div class="controls-bar-wrapper">
       <div class="controls-bar">
         <button id="sort-button">Sort</button>
@@ -135,9 +136,9 @@
         />
         <button id="theme-toggle">Toggle theme</button>
         <button id="history-toggle">History</button>
-
       </div>
     </div>
+    </header>
     <main id="main-content">
       <div class="content-wrapper">
         <div id="youtube-videos" class="videos-grid skeleton"></div>

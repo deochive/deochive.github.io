@@ -303,6 +303,10 @@ p {
   padding: 6px;
   box-sizing: border-box;
   margin-top: auto;
+  max-height: 50vh;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .sort-popup .sort-option {
@@ -317,10 +321,12 @@ p {
 
 #sort-button:hover {
   background: var(--acc1);
+  color: #000000;
 }
 
 .sort-popup .sort-option:hover {
   background: var(--acc1);
+  color: #000000;
 }
 
 .content-wrapper {
