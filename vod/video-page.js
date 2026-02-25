@@ -129,7 +129,7 @@ async function loadVideoData() {
     const publishDate = formatDate(publishedAt);
 
     infoContainer.innerHTML = `
-      <h1 class="video-title">${escapeHTML(title)}</h1>
+      <h2 class="video-title">${escapeHTML(title)}</h2>
       <div class="video-data">
         <div class="video-stats">
           ${formatNumber(viewCount)} views
