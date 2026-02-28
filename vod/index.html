@@ -64,7 +64,7 @@
       "
     />
     <noscript>
-      <link rel="stylesheet" href="./vod-style-VP.css" />
+    <link rel="stylesheet" href="./vod-style-VP.css" />
     </noscript>
     <link
       rel="preload"
@@ -77,6 +77,20 @@
     />
     <noscript>
       <link rel="stylesheet" href="../live-style.css" />
+    </noscript>
+    <link rel="stylesheet" href="../themes.css" />
+    </noscript>
+    <link
+      rel="preload"
+      href="../themes.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link rel="stylesheet" href="../themes.css" />
     </noscript>
     <script src="../site-pref.js" defer></script>
     <script src="./video-page.js" defer></script>
@@ -98,7 +112,18 @@
         </nav>
 
         <a href="https://deochive.github.io" class="back-link-button">&lt; Back</a>
-        <button id="theme-toggle" type="button">Toggle theme</button>
+        <button id="theme-button">Toggle themes</button>
+        <div id="theme-popup" class="popup">
+          <button class="popup-option" data-theme="light">Light Mode</button>
+          <button class="popup-option" data-theme="dark">Dark Mode</button>
+          <br>
+          <button class="popup-option" data-border="outline">
+            Yellow theme (standard)
+          </button>
+          <button class="popup-option" data-border="animated">
+            Hell theme
+          </button>
+        </div>
         <button id="theatre-toggle">Theatre Mode</button>
       </div>
     </div>

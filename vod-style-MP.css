@@ -133,6 +133,24 @@
   box-shadow: 0 0 12px 4px var(--acc1);
 }
 
+.video {
+  display: flex;
+  flex-direction: column;
+  background: var(--acc3);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 290px;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  position: relative;
+  flex: 0 0 360px;
+  transition:
+    transform 0.3s,
+    opacity 0.3s,
+    background 0.2s ease;
+}
+
 .videos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -155,27 +173,6 @@
   flex: 1;
   transition: margin-right 0.3s ease;
   margin-right: 0;
-}
-
-.video {
-  display: flex;
-  flex-direction: column;
-  background: var(--acc3);
-  border-radius: 8px;
-  overflow: hidden;
-  height: 290px;
-  width: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  position: relative;
-  outline-color: var(--acc1);
-  outline-style: solid;
-  outline-width: 2px;
-  flex: 0 0 360px;
-  transition:
-    transform 0.3s,
-    opacity 0.3s,
-    background 0.2s ease;
 }
 
 .video:hover {
@@ -287,7 +284,7 @@ p {
   flex-shrink: 0;
 }
 
-.sort-popup {
+.popup {
   position: absolute;
   top: 100%;
   background: var(--acc2);
@@ -309,14 +306,15 @@ p {
   overflow-y: auto;
 }
 
-.sort-popup .sort-option {
+.popup .popup-option {
   padding: 6px 12px;
   cursor: pointer;
   border-radius: 6px;
   transition:
     background 0.2s,
     color 0.2s;
-  color: var(--text)
+  color: var(--text);
+  font-size: 14px;
 }
 
 #sort-button:hover {
@@ -324,7 +322,7 @@ p {
   color: #000000;
 }
 
-.sort-popup .sort-option:hover {
+.popup .popup-option:hover {
   background: var(--acc1);
   color: #000000;
 }
@@ -493,7 +491,7 @@ p {
 }
 
 @media screen and (max-width: 596px) {
-  body.page-home .sort-popup {
+  body.page-home .popup {
     width: calc(100% - 21px);
   }
 }

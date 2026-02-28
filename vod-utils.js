@@ -7,7 +7,6 @@ export function formatDuration(isoDuration) {
   const h = parseInt(match[1] || 0);
   const m = parseInt(match[2] || 0);
   const s = parseInt(match[3] || 0);
-
   return h > 0
     ? `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
     : `${m}:${s.toString().padStart(2, "0")}`;

@@ -1,37 +1,84 @@
-const root = document.documentElement;
-const savedTheme = localStorage.getItem("theme");
-
-if (savedTheme) {
+document.addEventListener("DOMContentLoaded", () => {
+  const root = document.documentElement;
+  const savedTheme =
+    localStorage.getItem("theme") ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
   root.setAttribute("data-theme", savedTheme);
-} else {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  root.setAttribute("data-theme", prefersDark ? "dark" : "light");
-}
+  const savedBorder = localStorage.getItem("border-theme") || "outline";
+  root.setAttribute("data-border", savedBorder);
+  function applyBorderTheme(border) {
+    root.setAttribute("data-border", border);
+    localStorage.setItem("border-theme", border);
 
-window.setLayout = function (layout) {
-  document
-    .querySelectorAll(".controls-bar button")
-    .forEach((b) => b.classList.remove("active"));
+    if (border === "animated") {
+      root.style.setProperty("--acc1", "#ff4111");
+    } else if (border === "outline") {
+      root.style.setProperty("--acc1", "#fff511");
+    }
+  }
 
-  const btn = document.querySelector(
-    `.controls-bar button[onclick="setLayout('${layout}')"]`,
-  );
-  if (btn) btn.classList.add("active");
-  const grid = document.getElementById("youtube-videos");
-  if (grid) grid.className = "videos-grid " + layout + "-view";
-};
+  applyBorderTheme(savedBorder);
+  function setupPopup(buttonId, popupId, optionsCallback) {
+    const btn = document.getElementById(buttonId);
+    const popup = document.getElementById(popupId);
+    if (!btn || !popup) return;
 
-window.addEventListener("DOMContentLoaded", () => {
-  setLayout("grid");
+    const options = Array.from(popup.querySelectorAll(".popup-option"));
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = popup.style.display === "flex";
+      popup.style.display = isOpen ? "none" : "flex";
+      btn.setAttribute("aria-expanded", String(!isOpen));
+      if (!isOpen) options[0].focus();
+    });
 
-  const toggle = document.getElementById("theme-toggle");
-  if (!toggle) return;
+    popup.addEventListener("click", (e) => e.stopPropagation());
+    options.forEach((option) => {
+      option.addEventListener("click", () => {
+        optionsCallback(option);
+        popup.style.display = "none";
+        btn.focus();
+      });
 
-  toggle.addEventListener("click", () => {
-    const isLight = root.getAttribute("data-theme") === "light";
-    const nextTheme = isLight ? "dark" : "light";
+      option.addEventListener("keydown", (e) => {
+        let index = options.indexOf(document.activeElement);
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          options[(index + 1) % options.length].focus();
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          options[(index - 1 + options.length) % options.length].focus();
+        } else if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          option.click();
+        } else if (e.key === "Escape") {
+          popup.style.display = "none";
+          btn.focus();
+        }
+      });
+    });
 
-    root.setAttribute("data-theme", nextTheme);
-    localStorage.setItem("theme", nextTheme);
+    document.addEventListener("click", () => {
+      popup.style.display = "none";
+      btn.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  setupPopup("theme-button", "theme-popup", (option) => {
+    if (option.dataset.theme) {
+      root.setAttribute("data-theme", option.dataset.theme);
+      localStorage.setItem("theme", option.dataset.theme);
+    }
+    if (option.dataset.border) {
+      applyBorderTheme(option.dataset.border);
+    }
+  });
+
+  setupPopup("border-theme-button", "border-theme-popup", (option) => {
+    if (option.dataset.border) {
+      applyBorderTheme(option.dataset.border);
+    }
   });
 });

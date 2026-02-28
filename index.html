@@ -34,7 +34,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://www.googleapis.com" />
-    <link rel="preconnect" href="https://api.twitch.tv" />
     <link
       rel="preload"
       href="body.css"
@@ -83,49 +82,60 @@
     <noscript>
       <link rel="stylesheet" href="live-style.css" />
     </noscript>
+    <link
+      rel="preload"
+      href="themes.css"
+      as="style"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link rel="stylesheet" href="themes.css" />
+    </noscript>
     <script src="site-pref.js" defer></script>
     <script src="live-detection.js" defer></script>
     <script src="vod-history.js" defer></script>
-    <script src="./account/connect.js" defer></script>
   </head>
   <body class="page-home">
     <header>
-    <h1 class="scr-r-hidden">Search for videos page</h1>
-    <p class="disclaimer">
-      This site works through YouTube embedded videos, it does <u>not</u> host
-      any videos
-    </p>
+      <h1 class="scr-r-hidden">Search for videos page</h1>
+      <p class="disclaimer">
+        This site works through YouTube embedded videos, it does <u>not</u> host
+        any videos
+      </p>
     </header>
     <div class="controls-bar-wrapper">
       <div class="controls-bar">
         <button id="sort-button">Sort</button>
-        <div id="sort-popup" class="sort-popup">
-        <button onclick="setLayout('grid')" class="active">Grid</button>
-        <button onclick="setLayout('list')">List</button>
-        <button onclick="setLayout('compact')">Compact</button>
-        <br>
-          <div class="sort-option" tabindex="0" data-sort="date-new">
+        <div id="sort-popup" class="popup">
+          <button onclick="setLayout('grid')" class="active">Grid</button>
+          <button onclick="setLayout('list')">List</button>
+          <button onclick="setLayout('compact')">Compact</button>
+          <br />
+          <div class="popup-option" tabindex="0" data-sort="date-new">
             Date (Latest uploaded)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="date-old">
+          <div class="popup-option" tabindex="0" data-sort="date-old">
             Date (Oldest uploaded)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="length-long">
+          <div class="popup-option" tabindex="0" data-sort="length-long">
             Length (Longest)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="length-short">
+          <div class="popup-option" tabindex="0" data-sort="length-short">
             Length (Shortest)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="title-az">
+          <div class="popup-option" tabindex="0" data-sort="title-az">
             Title (A–Z)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="title-za">
+          <div class="popup-option" tabindex="0" data-sort="title-za">
             Title (Z–A)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="creator-az">
+          <div class="popup-option" tabindex="0" data-sort="creator-az">
             Creator (A–Z)
           </div>
-          <div class="sort-option" tabindex="0" data-sort="creator-za">
+          <div class="popup-option" tabindex="0" data-sort="creator-za">
             Creator (Z–A)
           </div>
         </div>
@@ -135,10 +145,21 @@
           class="video-search"
           placeholder="Search videos..."
         />
-        <button id="theme-toggle">Toggle theme</button>
+        <button id="theme-button">Toggle themes</button>
+        <div id="theme-popup" class="popup">
+          <button class="popup-option" data-theme="light">Light Mode</button>
+          <button class="popup-option" data-theme="dark">Dark Mode</button>
+          <br />
+          <button class="popup-option" data-border="outline">
+            Yellow theme (standard)
+          </button>
+          <button class="popup-option" data-border="animated">
+            Hell theme
+          </button>
+        </div>
         <button id="history-toggle">History</button>
       </div>
-      </div>
+    </div>
     <main id="main-content">
       <div class="content-wrapper">
         <div id="youtube-videos" class="videos-grid skeleton"></div>

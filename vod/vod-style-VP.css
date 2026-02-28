@@ -125,17 +125,14 @@ a:hover {
   border: none;
   border-radius: 8px;
   background: var(--acc3);
-  color: #ffffff;
+  color: var(--text);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   text-decoration: none;
-
   transition:
     background-color 0.2s,
     color 0.2s,

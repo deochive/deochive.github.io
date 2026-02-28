@@ -66,6 +66,10 @@
   color: #000000;
 }
 
+#history-pin:hover {
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
 .history-actions button.active:hover {
   box-shadow: 0 0 12px 4px var(--acc1);
 }
