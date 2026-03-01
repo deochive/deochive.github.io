@@ -17,13 +17,13 @@
   background-repeat: repeat-y;
   background-size: 100% auto;
   background-position: right 0;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
 
@@ -63,13 +63,13 @@
   background-repeat: repeat-y;
   background-size: 100% auto;
   background-position: right 0;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
 
@@ -78,6 +78,10 @@
 }
 
 @keyframes scrollBorder {
-  from { background-position: right 0; }
-  to   { background-position: right -736px; }
+  from {
+    background-position: right 0;
+  }
+  to {
+    background-position: right -736px;
+  }
 }

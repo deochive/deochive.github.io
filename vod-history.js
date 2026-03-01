@@ -1,6 +1,7 @@
 const HISTORY_KEY = "watchHistory";
 const MAX_HISTORY = 20;
 let cachedHistory = null;
+let lastAddedVideoId = null;
 
 function loadHistory() {
   if (cachedHistory) return cachedHistory;
@@ -20,6 +21,34 @@ function addToHistory(video) {
   renderHistory();
 }
 
+function getVideoIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const videoId = params.get("videoId");
+  return /^[a-zA-Z0-9_-]{11}$/.test(videoId) ? videoId : null;
+}
+
+function detectAndAddVideo() {
+  const checkVideo = () => {
+    const iframe = document.querySelector("#player");
+    const videoId = iframe?.src?.match(/\/embed\/([^?&]+)/)?.[1] || getVideoIdFromURL();
+    if (!videoId) return;
+
+    if (videoId === lastAddedVideoId) return;
+
+    const titleEl = document.querySelector("h2.video-title") || document.querySelector("title");
+    const channelEl = document.querySelector(".channel-row .creator-name") || document.querySelector("meta[itemprop='author']");
+    if (!titleEl || !channelEl) return;
+
+    const title = titleEl.textContent.trim() || titleEl.getAttribute("content") || "Unknown Title";
+    const channelTitle = channelEl.textContent.trim() || channelEl.getAttribute("content") || "Unknown Channel";
+    const thumbnail = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
+    addToHistory({ videoId, title, channelTitle, thumbnail });
+    lastAddedVideoId = videoId;
+  };
+
+  setInterval(checkVideo, 500);
+}
+
 function renderHistory() {
   const list = document.getElementById("history-list");
   if (!list) return;
@@ -30,57 +59,22 @@ function renderHistory() {
     item.className = "history-item";
     item.type = "button";
     item.dataset.videoId = videoId;
-    item.setAttribute("aria-label", `Watch ${title} by ${channelTitle}`);
+    item.dataset.title = title;
+    item.dataset.channel = channelTitle;
+    item.dataset.thumbnail = thumbnail;
     item.innerHTML = `
-      <img src="${thumbnail || `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`}" 
-           alt="${title}" width="160" height="90" loading="lazy">
+      <img src="${thumbnail}" alt="${title}" width="160" height="90">
       <div>
         <div class="history-title">${title}</div>
         <div class="history-meta">${channelTitle}</div>
       </div>
     `;
+    item.addEventListener("click", () => {
+      window.location.href = `vod/?videoId=${videoId}`;
+    });
     fragment.appendChild(item);
   });
-
   list.replaceChildren(fragment);
-}
-
-function addCurrentVideoFromPage() {
-  const iframe = document.querySelector("#player");
-  if (!iframe?.src) return;
-
-  const match = iframe.src.match(/\/embed\/([^?&]+)/);
-  if (!match) return;
-  const videoId = match[1];
-  const waitForElements = () => {
-    const titleEl = document.querySelector("h1.video-title");
-    const channelEl = document.querySelector(".channel-row .creator-name");
-
-    if (titleEl && channelEl) {
-      const title = titleEl.textContent.trim();
-      const channelTitle = channelEl.textContent.trim();
-      const thumbnail = `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
-      addToHistory({ videoId, title, channelTitle, thumbnail });
-    } else {
-      setTimeout(waitForElements, 100);
-    }
-  };
-  waitForElements();
-}
-
-function observeVideoChanges() {
-  let lastVideoId = null;
-  setInterval(() => {
-    const iframe = document.querySelector("#player");
-    if (!iframe?.src) return;
-
-    const match = iframe.src.match(/\/embed\/([^?&]+)/);
-    const videoId = match ? match[1] : null;
-    if (videoId && videoId !== lastVideoId) {
-      lastVideoId = videoId;
-      addCurrentVideoFromPage();
-    }
-  }, 500);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -88,30 +82,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const historyBtn = document.getElementById("history-toggle");
   const closeBtn = document.getElementById("history-close");
   const pinBtn = document.getElementById("history-pin");
-  const list = document.getElementById("history-list");
+  let pinned = false;
 
   historyBtn?.addEventListener("click", () => {
     const open = wrapper.classList.toggle("history-open");
-    if (!open) wrapper.classList.remove("history-pinned"), pinBtn.classList.remove("active");
+    if (!open) {
+      wrapper.classList.remove("history-pinned");
+      pinBtn.classList.remove("active");
+    }
   });
 
-  closeBtn?.addEventListener("click", () => {
-    wrapper.classList.remove("history-open", "history-pinned");
-    pinBtn.classList.remove("active");
-  });
-
+  closeBtn?.addEventListener("click", () => wrapper.classList.remove("history-open"));
   pinBtn?.addEventListener("click", () => {
-    const pinned = wrapper.classList.toggle("history-pinned");
+    pinned = !pinned;
+    wrapper.classList.toggle("history-pinned", pinned);
     pinBtn.classList.toggle("active", pinned);
   });
 
-list?.addEventListener("click", e => {
-  const item = e.target.closest(".history-item");
-  if (!item) return;
-  window.location.href = `vod/?videoId=${item.dataset.videoId}`;
-});
+  const isVideoPage = !!document.querySelector("#player") || getVideoIdFromURL();
+  const isMainPage = !!document.getElementById("history-list");
 
-  addCurrentVideoFromPage();
-  renderHistory();
-  observeVideoChanges();
+  if (isVideoPage) detectAndAddVideo();
+  
+  if (isMainPage) renderHistory();
 });

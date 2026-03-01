@@ -110,9 +110,9 @@
       <div class="controls-bar">
         <button id="sort-button">Sort</button>
         <div id="sort-popup" class="popup">
-          <button onclick="setLayout('grid')" class="active">Grid</button>
-          <button onclick="setLayout('list')">List</button>
-          <button onclick="setLayout('compact')">Compact</button>
+          <button onclick="setLayout('grid', this)" class="active">Grid</button>
+          <button onclick="setLayout('list', this)">List</button>
+          <button onclick="setLayout('compact', this)">Compact</button>
           <br />
           <div class="popup-option" tabindex="0" data-sort="date-new">
             Date (Latest uploaded)
@@ -162,7 +162,6 @@
     </div>
     <main id="main-content">
       <div class="content-wrapper">
-        <div id="youtube-videos" class="videos-grid skeleton"></div>
         <div id="watch-history" class="watch-history">
           <div class="history-header">
             <h2>Your history</h2>
@@ -174,6 +173,7 @@
           <div id="history-list"></div>
         </div>
       </div>
+      <div id="youtube-videos" class="videos-grid skeleton"></div>
     </main>
     <div id="pagination" class="pagination"></div>
     <footer id="footer-content">

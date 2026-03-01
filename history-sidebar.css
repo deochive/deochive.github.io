@@ -78,8 +78,9 @@
   transform: translateX(0);
 }
 
-.content-wrapper.history-pinned #youtube-videos {
-  margin-right: 345px;
+.content-wrapper.history-pinned + #youtube-videos {
+  width: calc(100% - 345px);
+  transition: width 0.3s ease;
 }
 
 #history-pin.active {

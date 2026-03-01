@@ -30,6 +30,8 @@ const CACHE_KEY = "cachedVideos_v1";
 const CACHE_TIME_KEY = "cachedVideos_time";
 const CACHE_TTL = 1000 * 60 * 60 * 6; // 6hrs cache time
 const channelIconCache = new Map();
+const CHANNEL_ICON_KEY = "cachedChannelIcons_v1";
+const CHANNEL_ICON_TTL = 1000 * 60 * 60 * 24; // 24 hours
 
 function renderPage(page, videos = allVideos) {
   currentPage = page;
@@ -132,7 +134,7 @@ async function fetchPlaylistVideos(playlistId) {
         thumbnail: item.snippet?.thumbnails?.medium?.url || "",
         description: item.snippet?.description || "",
         channelTitle: item.snippet?.videoOwnerChannelTitle || "Playlist Video",
-        channelIcon: "",
+        channelId: item.snippet?.channelId || item.snippet?.videoOwnerChannelId || "",
         fromPlaylist: true,
       })),
     );
@@ -142,14 +144,20 @@ async function fetchPlaylistVideos(playlistId) {
 }
 
 async function fetchChannelVideos(channelId) {
+  if (!channelId) {
+    console.warn("fetchChannelVideos called with undefined channelId");
+    return [];
+  }
+
   let list = [];
   const channelRes = await fetch(
-    `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&id=${channelId}&key=${kx}`,
+    `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&id=${channelId}&key=${kx}`
   );
   const channelData = await channelRes.json();
   const uploadsPlaylistId =
     channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
   if (!uploadsPlaylistId) return list;
+
   const channelTitle = channelData.items[0].snippet.title || "Channel";
   const channelIcon =
     channelData.items[0].snippet?.thumbnails?.default?.url || "";
@@ -157,10 +165,11 @@ async function fetchChannelVideos(channelId) {
   let nextPageToken = "";
   do {
     const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsPlaylistId}&pageToken=${nextPageToken}&key=${kx}`,
+      `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsPlaylistId}&pageToken=${nextPageToken}&key=${kx}`
     );
     const data = await res.json();
     if (!data.items) break;
+
     list.push(
       ...data.items.map((item) => ({
         videoId: item.snippet?.resourceId?.videoId || "",
@@ -170,44 +179,93 @@ async function fetchChannelVideos(channelId) {
         channelTitle,
         channelIcon,
         fromPlaylist: false,
-      })),
+      }))
     );
+
     nextPageToken = data.nextPageToken || "";
   } while (nextPageToken);
+
   return list.filter((v) => v.videoId);
 }
 
+function loadChannelIconCache() {
+  try {
+    const raw = localStorage.getItem(CHANNEL_ICON_KEY);
+    if (!raw) return;
+
+    const parsed = JSON.parse(raw);
+    const age = Date.now() - parsed.timestamp;
+    if (age > CHANNEL_ICON_TTL) return;
+
+    Object.entries(parsed.data).forEach(([id, url]) => {
+      channelIconCache.set(id, url);
+    });
+  } catch (e) {
+    console.warn("Failed to load channel icon cache", e);
+  }
+}
+
+function saveChannelIconCache() {
+  try {
+    const data = Object.fromEntries(channelIconCache);
+    localStorage.setItem(
+      CHANNEL_ICON_KEY,
+      JSON.stringify({ timestamp: Date.now(), data })
+    );
+  } catch (e) {
+    console.warn("Failed to save channel icon cache", e);
+  }
+}
+
 async function fetchChannelIcons(videos) {
+  if (!Array.isArray(videos) || !videos.length) return;
+
   const missingChannelIds = [
     ...new Set(
       videos
-        .map((v) => v.channelId)
-        .filter((id) => id && !channelIconCache.has(id)),
+        .map(v => v.channelId)
+        .filter(id => id && !channelIconCache.has(id))
     ),
   ];
 
-  if (!missingChannelIds.length) return;
-  for (let i = 0; i < missingChannelIds.length; i += 50) {
-    const batch = missingChannelIds.slice(i, i + 50);
-
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${batch.join(",")}&key=${kx}`,
-    );
-    const data = await res.json();
-    data.items?.forEach((item) => {
-      const icon = item.snippet?.thumbnails?.default?.url || "";
-      channelIconCache.set(item.id, icon);
+  if (!missingChannelIds.length) {
+    videos.forEach(v => {
+      if (v.channelId && !v.channelIcon && channelIconCache.has(v.channelId)) {
+        v.channelIcon = channelIconCache.get(v.channelId);
+      }
     });
+    return;
   }
 
-  videos.forEach((v) => {
-    if (
-      channelIconCache.has(v.channelId) &&
-      (!v.channelIcon || v.channelIcon === v.thumbnail)
-    ) {
+  for (let i = 0; i < missingChannelIds.length; i += 50) {
+    const batch = missingChannelIds.slice(i, i + 50).filter(Boolean);
+    if (!batch.length) continue;
+
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${batch.join(",")}&key=${kx}`
+      );
+      const data = await res.json();
+
+      data.items?.forEach(item => {
+        if (item.id) {
+          const icon = item.snippet?.thumbnails?.default?.url || "";
+          channelIconCache.set(item.id, icon);
+        }
+      });
+    } catch (err) {
+      console.warn("Failed to fetch channel icons batch:", err);
+    }
+  }
+
+  videos.forEach(v => {
+    if (v.channelId && channelIconCache.has(v.channelId)) {
       v.channelIcon = channelIconCache.get(v.channelId);
+    } else {
+      v.channelIcon = "";
     }
   });
+  saveChannelIconCache();
   applySearch();
 }
 
@@ -517,10 +575,17 @@ sortButton.addEventListener("click", (e) => {
 });
 
 sortOptions.forEach((option) => {
+  const activateOption = () => {
+    sortOptions.forEach((opt) => opt.classList.remove("active"));
+    option.classList.add("active");
+  };
+
   option.addEventListener("click", () => {
     sortVideos(option.dataset.sort);
+    activateOption();
     sortPopup.style.display = "none";
   });
+
   option.addEventListener("keydown", (e) => {
     let index = sortOptions.indexOf(document.activeElement);
     if (e.key === "ArrowDown") {
@@ -534,6 +599,7 @@ sortOptions.forEach((option) => {
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       sortVideos(option.dataset.sort);
+      activateOption();
       sortPopup.style.display = "none";
     } else if (e.key === "Escape") {
       sortPopup.style.display = "none";
@@ -542,11 +608,8 @@ sortOptions.forEach((option) => {
   });
 });
 
-document.addEventListener("click", () => {
-  sortPopup.style.display = "none";
-});
-
 document.addEventListener("DOMContentLoaded", () => {
+   loadChannelIconCache();
   const searchInput = document.getElementById("video-search");
   if (searchInput) {
     searchInput.addEventListener("input", () => {
@@ -558,6 +621,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadVideos().then(() => {
     if (searchInput.value.trim() !== "") {
       currentQuery = searchInput.value.trim().toLowerCase();
+      applySearch();
     }
   });
 });

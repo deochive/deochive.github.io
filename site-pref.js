@@ -20,12 +20,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   applyBorderTheme(savedBorder);
-  function setupPopup(buttonId, popupId, optionsCallback) {
+  function setupPopup(buttonId, popupId, optionsCallback, storageKey) {
     const btn = document.getElementById(buttonId);
     const popup = document.getElementById(popupId);
     if (!btn || !popup) return;
 
     const options = Array.from(popup.querySelectorAll(".popup-option"));
+    if (storageKey) {
+      const savedValue = localStorage.getItem(storageKey);
+      if (savedValue) {
+        const activeOption = options.find(
+          (opt) =>
+            opt.dataset.theme === savedValue ||
+            opt.dataset.border === savedValue,
+        );
+        if (activeOption) {
+          options.forEach((opt) => opt.classList.remove("active"));
+          activeOption.classList.add("active");
+        }
+      }
+    }
+
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const isOpen = popup.style.display === "flex";
@@ -38,6 +53,15 @@ document.addEventListener("DOMContentLoaded", () => {
     options.forEach((option) => {
       option.addEventListener("click", () => {
         optionsCallback(option);
+        options.forEach((opt) => opt.classList.remove("active"));
+        option.classList.add("active");
+        if (storageKey) {
+          if (option.dataset.theme)
+            localStorage.setItem(storageKey, option.dataset.theme);
+          if (option.dataset.border)
+            localStorage.setItem(storageKey, option.dataset.border);
+        }
+
         popup.style.display = "none";
         btn.focus();
       });
@@ -81,4 +105,24 @@ document.addEventListener("DOMContentLoaded", () => {
       applyBorderTheme(option.dataset.border);
     }
   });
+
+  window.setLayout = function (view, button) {
+    const container = document.getElementById("youtube-videos");
+    if (!container) return;
+
+    container.classList.remove("list-view", "compact-view");
+    if (view === "list") container.classList.add("list-view");
+
+    if (view === "compact") container.classList.add("compact-view");
+
+    document.querySelectorAll("[onclick^='setLayout']").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    if (button) button.classList.add("active");
+
+    const layoutPopup = document.getElementById("sort-popup");
+    if (layoutPopup) {
+      layoutPopup.style.display = "none";
+    }
+  };
 });

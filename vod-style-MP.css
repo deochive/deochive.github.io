@@ -98,7 +98,8 @@
   color: #000000;
 }
 
-.controls-bar button.active {
+.controls-bar button.active,
+.popup-option.active {
   outline-color: var(--acc1);
   box-shadow: 0 0 8px 2px var(--acc1);
 }
@@ -158,6 +159,8 @@
   padding: 16px;
   transition: all 0.3s ease;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .video-link {
@@ -317,11 +320,7 @@ p {
   font-size: 14px;
 }
 
-#sort-button:hover {
-  background: var(--acc1);
-  color: #000000;
-}
-
+#sort-button:hover,
 .popup .popup-option:hover {
   background: var(--acc1);
   color: #000000;
