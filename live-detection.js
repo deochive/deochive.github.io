@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const users = ["brucedropemoff"];
   const pxk = "h6e18v19zv1lzx36kyv700os8adys0";
-  const dpq = "iiup8vm86l2ubrgjoci7w1cvvv07j7";
+  const dpq = "zuoi097ky0gx6mqkvxi8jiiu0ak5un";
   const userElements = new Map();
   const dismissedUsers = new Set();
   async function isUserLive(username) {
